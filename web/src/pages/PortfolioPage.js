@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { portfolioAPI, stockAPI } from '../services/api';
+import { portfolioAPI } from '../services/api';
 
 function PortfolioPage() {
-  const [portfolios, setPortfolios] = useState([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState(null);
   const [performance, setPerformance] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
-  const [stockSearch, setStockSearch] = useState('');
   const [newTransaction, setNewTransaction] = useState({
     stockId: '',
     symbol: '',
@@ -18,16 +16,11 @@ function PortfolioPage() {
     fees: '0'
   });
 
-  useEffect(() => {
-    fetchPortfolios();
-  }, []);
-
   const fetchPortfolios = async () => {
     try {
       setLoading(true);
       const response = await portfolioAPI.getAll();
       if (response.data.success) {
-        setPortfolios(response.data.data);
         if (response.data.data.length > 0) {
           const portfolio = response.data.data[0];
           setSelectedPortfolio(portfolio);
@@ -40,6 +33,13 @@ function PortfolioPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPortfolios();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
 
   const fetchPortfolioDetails = async (portfolioId) => {
     try {

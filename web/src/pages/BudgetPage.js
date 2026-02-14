@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { budgetAPI } from '../services/api';
 
 function BudgetPage() {
-  const [budgets, setBudgets] = useState([]);
   const [selectedBudget, setSelectedBudget] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,16 +13,11 @@ function BudgetPage() {
     type: 'expense'
   });
 
-  useEffect(() => {
-    fetchBudgets();
-  }, []);
-
   const fetchBudgets = async () => {
     try {
       setLoading(true);
       const response = await budgetAPI.getAll();
       if (response.data.success) {
-        setBudgets(response.data.data);
         if (response.data.data.length > 0) {
           setSelectedBudget(response.data.data[0]);
           fetchTransactions(response.data.data[0].id);
@@ -35,6 +29,13 @@ function BudgetPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchBudgets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
 
   const fetchTransactions = async (budgetId) => {
     try {
