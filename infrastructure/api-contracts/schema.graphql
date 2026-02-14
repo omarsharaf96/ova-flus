@@ -1,0 +1,440 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+# ════════════════════════════════════════════════════════════════════
+# Scalars
+# ════════════════════════════════════════════════════════════════════
+
+scalar AWSDateTime
+scalar AWSJSON
+scalar AWSEmail
+
+# ════════════════════════════════════════════════════════════════════
+# Enums
+# ════════════════════════════════════════════════════════════════════
+
+enum BudgetPeriod {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum TimeFrame {
+  ONE_WEEK
+  ONE_MONTH
+  THREE_MONTHS
+  SIX_MONTHS
+  ONE_YEAR
+  FIVE_YEARS
+  ALL
+}
+
+enum NotificationType {
+  BUDGET_ALERT
+  TRANSACTION
+  PORTFOLIO
+  SYSTEM
+  REMINDER
+}
+
+enum AlertSeverity {
+  WARNING
+  EXCEEDED
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+# ════════════════════════════════════════════════════════════════════
+# Types
+# ════════════════════════════════════════════════════════════════════
+
+type User {
+  id: ID!
+  email: AWSEmail!
+  displayName: String!
+  avatar: String
+  mfaEnabled: Boolean!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  budgets: [Budget!]!
+  portfolios: [Portfolio!]!
+}
+
+type Budget {
+  id: ID!
+  userId: ID!
+  name: String!
+  description: String
+  amount: Float!
+  currency: String!
+  period: BudgetPeriod!
+  startDate: String!
+  endDate: String
+  categories: [BudgetCategory!]!
+  summary: BudgetSummary
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type BudgetCategory {
+  id: ID!
+  name: String!
+  allocatedAmount: Float!
+  color: String
+  icon: String
+  spent: Float
+}
+
+type BudgetSummary {
+  totalBudget: Float!
+  totalSpent: Float!
+  remaining: Float!
+  percentUsed: Float!
+  alerts: [BudgetAlert!]!
+}
+
+type BudgetAlert {
+  type: AlertSeverity!
+  message: String!
+  categoryId: ID
+  categoryName: String
+}
+
+type Transaction {
+  id: ID!
+  userId: ID!
+  type: TransactionType!
+  amount: Float!
+  currency: String!
+  description: String!
+  categoryId: ID
+  categoryName: String
+  date: String!
+  merchant: String
+  notes: String
+  tags: [String!]!
+  isRecurring: Boolean!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type TransactionConnection {
+  items: [Transaction!]!
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type Portfolio {
+  id: ID!
+  userId: ID!
+  name: String!
+  description: String
+  totalValue: Float!
+  totalGainLoss: Float!
+  totalGainLossPercent: Float!
+  holdings: [Holding!]!
+  performance(timeframe: TimeFrame): PortfolioPerformance
+  allocation: PortfolioAllocation
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Holding {
+  id: ID!
+  symbol: String!
+  name: String!
+  shares: Float!
+  averageCost: Float!
+  currentPrice: Float!
+  totalValue: Float!
+  gainLoss: Float!
+  gainLossPercent: Float!
+  createdAt: AWSDateTime!
+}
+
+type PortfolioPerformance {
+  portfolioId: ID!
+  timeframe: TimeFrame!
+  totalReturn: Float!
+  totalReturnPercent: Float!
+  dataPoints: [PerformanceDataPoint!]!
+}
+
+type PerformanceDataPoint {
+  date: String!
+  value: Float!
+}
+
+type PortfolioAllocation {
+  portfolioId: ID!
+  totalValue: Float!
+  allocations: [AllocationItem!]!
+}
+
+type AllocationItem {
+  symbol: String!
+  name: String!
+  value: Float!
+  percentage: Float!
+  sector: String
+}
+
+type StockQuote {
+  symbol: String!
+  name: String!
+  exchange: String!
+  currentPrice: Float!
+  change: Float!
+  changePercent: Float!
+  high: Float!
+  low: Float!
+  open: Float!
+  previousClose: Float!
+  volume: Int!
+  marketCap: Float
+  updatedAt: AWSDateTime!
+}
+
+type HistoricalPrice {
+  date: String!
+  open: Float!
+  high: Float!
+  low: Float!
+  close: Float!
+  volume: Int!
+}
+
+type Notification {
+  id: ID!
+  userId: ID!
+  type: NotificationType!
+  title: String!
+  message: String!
+  isRead: Boolean!
+  data: AWSJSON
+  createdAt: AWSDateTime!
+}
+
+type WatchlistItem {
+  symbol: String!
+  name: String!
+  currentPrice: Float!
+  change: Float!
+  changePercent: Float!
+  addedAt: AWSDateTime!
+}
+
+type Watchlist {
+  id: ID!
+  name: String!
+  items: [WatchlistItem!]!
+  createdAt: AWSDateTime!
+}
+
+# ════════════════════════════════════════════════════════════════════
+# Inputs
+# ════════════════════════════════════════════════════════════════════
+
+input PaginationInput {
+  page: Int = 1
+  limit: Int = 20
+}
+
+input TransactionFilter {
+  startDate: String
+  endDate: String
+  categoryId: ID
+  type: TransactionType
+  search: String
+  sortBy: String
+  sortOrder: SortOrder
+}
+
+input CreateBudgetInput {
+  name: String!
+  description: String
+  amount: Float!
+  currency: String = "USD"
+  period: BudgetPeriod!
+  startDate: String!
+  endDate: String
+  templateId: String
+}
+
+input UpdateBudgetInput {
+  name: String
+  description: String
+  amount: Float
+  period: BudgetPeriod
+  endDate: String
+}
+
+input CreateTransactionInput {
+  type: TransactionType!
+  amount: Float!
+  currency: String = "USD"
+  description: String!
+  categoryId: ID
+  date: String!
+  merchant: String
+  notes: String
+  tags: [String!]
+}
+
+input UpdateTransactionInput {
+  type: TransactionType
+  amount: Float
+  description: String
+  categoryId: ID
+  date: String
+  merchant: String
+  notes: String
+  tags: [String!]
+}
+
+input AddHoldingInput {
+  symbol: String!
+  shares: Float!
+  averageCost: Float!
+}
+
+input UpdateHoldingInput {
+  shares: Float
+  averageCost: Float
+}
+
+input CreatePortfolioInput {
+  name: String!
+  description: String
+}
+
+input UpdatePortfolioInput {
+  name: String
+  description: String
+}
+
+input CreateWatchlistInput {
+  name: String!
+}
+
+# ════════════════════════════════════════════════════════════════════
+# Queries
+# ════════════════════════════════════════════════════════════════════
+
+type Query {
+  # Auth
+  me: User!
+
+  # Budgets
+  budgets: [Budget!]!
+  budget(id: ID!): Budget
+
+  # Transactions
+  transactions(
+    filter: TransactionFilter
+    pagination: PaginationInput
+  ): TransactionConnection!
+
+  # Portfolio
+  portfolios: [Portfolio!]!
+  portfolio(id: ID!): Portfolio
+
+  # Market Data
+  stockQuote(symbol: String!): StockQuote
+  stockHistory(symbol: String!, timeframe: TimeFrame!): [HistoricalPrice!]!
+  searchStocks(query: String!): [StockQuote!]!
+
+  # Notifications
+  notifications(unreadOnly: Boolean = false): [Notification!]!
+
+  # Watchlists
+  watchlists: [Watchlist!]!
+}
+
+# ════════════════════════════════════════════════════════════════════
+# Mutations
+# ════════════════════════════════════════════════════════════════════
+
+type Mutation {
+  # Budgets
+  createBudget(input: CreateBudgetInput!): Budget!
+  updateBudget(id: ID!, input: UpdateBudgetInput!): Budget!
+  deleteBudget(id: ID!): Boolean!
+
+  # Budget Categories
+  addBudgetCategory(budgetId: ID!, name: String!, allocatedAmount: Float!, color: String, icon: String): BudgetCategory!
+  updateBudgetCategory(budgetId: ID!, categoryId: ID!, name: String, allocatedAmount: Float, color: String, icon: String): BudgetCategory!
+  deleteBudgetCategory(budgetId: ID!, categoryId: ID!): Boolean!
+
+  # Transactions
+  createTransaction(input: CreateTransactionInput!): Transaction!
+  updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
+  deleteTransaction(id: ID!): Boolean!
+
+  # Portfolios
+  createPortfolio(input: CreatePortfolioInput!): Portfolio!
+  updatePortfolio(id: ID!, input: UpdatePortfolioInput!): Portfolio!
+  deletePortfolio(id: ID!): Boolean!
+
+  # Holdings
+  addHolding(portfolioId: ID!, input: AddHoldingInput!): Holding!
+  updateHolding(portfolioId: ID!, holdingId: ID!, input: UpdateHoldingInput!): Holding!
+  removeHolding(portfolioId: ID!, holdingId: ID!): Boolean!
+
+  # Watchlists
+  createWatchlist(input: CreateWatchlistInput!): Watchlist!
+  addWatchlistItem(watchlistId: ID!, symbol: String!): WatchlistItem!
+  removeWatchlistItem(watchlistId: ID!, symbol: String!): Boolean!
+
+  # Notifications
+  markNotificationRead(id: ID!): Notification!
+  markAllNotificationsRead: Int!
+
+  # User
+  updateProfile(displayName: String, avatar: String): User!
+}
+
+# ════════════════════════════════════════════════════════════════════
+# Subscriptions (AWS AppSync real-time)
+# ════════════════════════════════════════════════════════════════════
+
+type Subscription {
+  onStockPriceUpdate(symbols: [String!]!): StockQuote
+    @aws_subscribe(mutations: ["updateStockPrice"])
+
+  onBudgetAlert(userId: ID!): BudgetAlert
+    @aws_subscribe(mutations: ["triggerBudgetAlert"])
+
+  onNewNotification(userId: ID!): Notification
+    @aws_subscribe(mutations: ["createNotification"])
+}

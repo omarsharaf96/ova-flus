@@ -1,0 +1,41 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths: ['services/**']
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [auth-service, budget-service, transaction-service, portfolio-service, market-data-service, analytics-service, notification-service]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push Docker image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          cd services/${{ matrix.service }}
+          docker build -t $ECR_REGISTRY/ova-flus-${{ matrix.service }}:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/ova-flus-${{ matrix.service }}:$IMAGE_TAG
+          docker tag $ECR_REGISTRY/ova-flus-${{ matrix.service }}:$IMAGE_TAG $ECR_REGISTRY/ova-flus-${{ matrix.service }}:latest
+          docker push $ECR_REGISTRY/ova-flus-${{ matrix.service }}:latest
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster ova-flus-cluster \
+            --service ova-flus-${{ matrix.service }} \
+            --force-new-deployment
