@@ -3,6 +3,8 @@
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useUIStore } from '@/lib/store/uiStore';
+import { LinkedAccountsList } from '@/components/plaid/LinkedAccountsList';
+import { PlaidLink } from '@/components/plaid/PlaidLink';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useUIStore();
@@ -10,6 +12,17 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Settings</h1>
+
+      <Card>
+        <h2 className="mb-4 text-lg font-semibold">Connected Bank Accounts</h2>
+        <p className="mb-4 text-sm text-[hsl(var(--muted-foreground))]">
+          Connect your bank accounts to automatically import transactions.
+        </p>
+        <LinkedAccountsList />
+        <div className="mt-4">
+          <PlaidLink />
+        </div>
+      </Card>
 
       <Card>
         <h2 className="mb-4 text-lg font-semibold">Profile</h2>

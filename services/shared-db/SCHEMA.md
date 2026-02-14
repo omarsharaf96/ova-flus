@@ -22,6 +22,8 @@ users
   |                         |-- 1:N -- tax_lots
   |-- 1:N -- watchlists
   |             |-- 1:N -- watchlist_items
+  |-- 1:N -- plaid_items
+  |             |-- 1:N -- bank_accounts
   |-- 1:N -- notifications
   |-- 1:N -- audit_logs
 ```
@@ -60,6 +62,13 @@ users
 | `tax_lots` | Per-lot cost basis tracking for tax reporting (FIFO/specific lot). |
 | `watchlists` | Named lists for tracking securities of interest. |
 | `watchlist_items` | Individual symbols on a watchlist with optional price alerts. |
+
+### Plaid (Bank Linking)
+
+| Table | Purpose |
+|-------|---------|
+| `plaid_items` | Plaid Item records linking a user to a financial institution via Plaid. Stores encrypted access tokens, institution info, consent expiration, and sync cursors. |
+| `bank_accounts` | Individual bank accounts retrieved from Plaid. Linked to a `plaid_item`. Stores account type, balances, mask, and official name. |
 
 ### System
 
@@ -109,3 +118,4 @@ All DynamoDB tables use PAY_PER_REQUEST billing for automatic scaling.
 1. `001_initial_schema.sql` - Extensions, tables, triggers
 2. `002_indexes.sql` - Performance indexes
 3. `003_rls_policies.sql` - Row-Level Security policies
+4. `004_plaid_tables.sql` - Plaid items and bank accounts tables, indexes, and RLS policies

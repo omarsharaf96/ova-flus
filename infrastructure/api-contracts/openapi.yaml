@@ -2630,3 +2630,126 @@ components:
           properties:
             enabled:
               type: boolean
+
+    # ── Plaid ──
+    PlaidWebhookPayload:
+      type: object
+      properties:
+        webhook_type:
+          type: string
+        webhook_code:
+          type: string
+        item_id:
+          type: string
+        error:
+          type: object
+          nullable: true
+          properties:
+            error_type:
+              type: string
+            error_code:
+              type: string
+            error_message:
+              type: string
+
+    CreateLinkTokenResponse:
+      type: object
+      properties:
+        linkToken:
+          type: string
+        expiration:
+          type: string
+          format: date-time
+
+    ExchangeTokenRequest:
+      type: object
+      required: [publicToken]
+      properties:
+        publicToken:
+          type: string
+
+    ExchangeTokenResponse:
+      type: object
+      properties:
+        itemId:
+          type: string
+          format: uuid
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/BankAccount'
+
+    BankAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        plaidAccountId:
+          type: string
+        name:
+          type: string
+        officialName:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum: [checking, savings, credit, loan, investment, other]
+        subtype:
+          type: string
+          nullable: true
+        mask:
+          type: string
+          nullable: true
+        currentBalance:
+          type: number
+          format: double
+          nullable: true
+        availableBalance:
+          type: number
+          format: double
+          nullable: true
+        currency:
+          type: string
+          default: USD
+        institutionName:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    PlaidItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        institutionId:
+          type: string
+          nullable: true
+        institutionName:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, error, pending_expiration]
+        lastSyncedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    SyncTransactionsResponse:
+      type: object
+      properties:
+        added:
+          type: integer
+        modified:
+          type: integer
+        removed:
+          type: integer
+        hasMore:
+          type: boolean
