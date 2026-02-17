@@ -37,7 +37,8 @@ targets:
         product: AWSAPIPlugin
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ovaflus.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.flus.app
+        PRODUCT_NAME: Flus
         INFOPLIST_FILE: OvaFlus/Info.plist
         CODE_SIGN_STYLE: Automatic
 
@@ -49,5 +50,5 @@ targets:
       - path: OvaFlus/OvaFlusWidget
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ovaflus.app.widget
+        PRODUCT_BUNDLE_IDENTIFIER: com.flus.app.widget
         INFOPLIST_FILE: OvaFlus/OvaFlusWidget/Info.plist

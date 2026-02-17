@@ -21,9 +21,9 @@
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSFaceIDUsageDescription</key>
-    <string>OvaFlus uses Face ID to securely sign you in and protect your financial data.</string>
+    <string>Flus uses Face ID to securely sign you in and protect your financial data.</string>
     <key>NSCameraUsageDescription</key>
-    <string>OvaFlus uses the camera to scan receipts for easy expense tracking.</string>
+    <string>Flus uses the camera to scan receipts for easy expense tracking.</string>
     <key>UIApplicationSceneManifest</key>
     <dict>
         <key>UIApplicationSupportsMultipleScenes</key>
