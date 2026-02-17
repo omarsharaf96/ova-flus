@@ -29,6 +29,7 @@
 		8E0F9E28817796B1FE9D03A4 /* Amplify in Frameworks */ = {isa = PBXBuildFile; productRef = 0B8A1ED5041E24F0121FFC30 /* Amplify */; };
 		95A86376B6E92B346BCD5AAE /* AWSAPIPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 7AC03479512BA0A3EA960822 /* AWSAPIPlugin */; };
 		95C736E65A4A23BFC53362CE /* BudgetDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF094DCB352FDE3C8348D778 /* BudgetDetailView.swift */; };
+		9CBCB1DE2E6512825A0B00C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ECEDC4F6150FDB4249748FDC /* Assets.xcassets */; };
 		ABFB535FEBEE4517FA9AC2BA /* StockDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44959AA4D0A3C3ABC9B38606 /* StockDetailView.swift */; };
 		BA59B766879AA12F78D22B42 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70973BC65F89668A25636C57 /* ProfileView.swift */; };
 		C4045EFE9D9EC8B9E2DF7EE7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41144448FC7FC89A5006A27F /* ContentView.swift */; };
@@ -63,6 +64,7 @@
 		C16ADAFB9271D066F05222ED /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		DC37049203C87EF6080A74B8 /* View+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Helpers.swift"; sourceTree = "<group>"; };
 		DE48203BBE92E43BFDAA882E /* LocalDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDataManager.swift; sourceTree = "<group>"; };
+		ECEDC4F6150FDB4249748FDC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EDB54632327BE5DE18797A68 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		F2CFF2DF38F0FBE4291AFF5D /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		F3DBE3F85C7DFB2E296EC343 /* OvaFlusWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = OvaFlusWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -145,6 +147,7 @@
 		521A017EA691B56136DA8155 /* OvaFlus */ = {
 			isa = PBXGroup;
 			children = (
+				ECEDC4F6150FDB4249748FDC /* Assets.xcassets */,
 				41144448FC7FC89A5006A27F /* ContentView.swift */,
 				A08420FE46BA5CA7E4E97DDD /* Info.plist */,
 				3CA2789786820ABC774A4A6D /* OvaFlusApp.swift */,
@@ -257,6 +260,7 @@
 			buildConfigurationList = 941C56123EBCC0FCE343047D /* Build configuration list for PBXNativeTarget "OvaFlus" */;
 			buildPhases = (
 				8BFBD66DCB87C3AF095C145C /* Sources */,
+				481A8FB630FE9C1B69B564A7 /* Resources */,
 				884AA7A31D08C653A11AA52E /* Frameworks */,
 			);
 			buildRules = (
@@ -313,6 +317,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		481A8FB630FE9C1B69B564A7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9CBCB1DE2E6512825A0B00C9 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4392815713EE8D596230C19D /* Sources */ = {
