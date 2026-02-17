@@ -27,6 +27,7 @@ targets:
     resources:
       - path: OvaFlus/Info.plist
         optional: true
+      - path: OvaFlus/Assets.xcassets
     dependencies:
       - package: amplify-swift
         product: Amplify
