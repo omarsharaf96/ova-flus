@@ -5,13 +5,14 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
-    Extension, Json,
+    Json,
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::models::{ApiError, Claims};
+use crate::middleware::auth::AuthUser;
+use crate::models::ApiError;
 use crate::AppState;
 
 #[derive(Serialize, Deserialize)]
@@ -88,7 +89,7 @@ fn item_to_goal(item: &std::collections::HashMap<String, AttributeValue>) -> Goa
 
 pub async fn list_goals(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
 ) -> impl IntoResponse {
     let result = state
         .dynamo
@@ -119,7 +120,7 @@ pub async fn list_goals(
 
 pub async fn create_goal(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Json(body): Json<CreateGoalRequest>,
 ) -> impl IntoResponse {
     let goal_id = Uuid::new_v4().to_string();
@@ -176,7 +177,7 @@ pub async fn create_goal(
 
 pub async fn get_goal(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Path(goal_id): Path<String>,
 ) -> impl IntoResponse {
     let result = state
@@ -206,7 +207,7 @@ pub async fn get_goal(
 
 pub async fn update_goal(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Path(goal_id): Path<String>,
     Json(body): Json<UpdateGoalRequest>,
 ) -> impl IntoResponse {
@@ -290,7 +291,7 @@ pub async fn update_goal(
 
 pub async fn delete_goal(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Path(goal_id): Path<String>,
 ) -> impl IntoResponse {
     let result = state

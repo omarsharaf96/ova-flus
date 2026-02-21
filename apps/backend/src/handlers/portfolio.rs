@@ -5,13 +5,14 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
-    Extension, Json,
+    Json,
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::models::{ApiError, Claims};
+use crate::middleware::auth::AuthUser;
+use crate::models::ApiError;
 use crate::AppState;
 
 #[derive(Serialize, Deserialize)]
@@ -82,7 +83,7 @@ fn item_to_holding(item: &std::collections::HashMap<String, AttributeValue>) -> 
 
 pub async fn get_portfolio(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
 ) -> impl IntoResponse {
     let result = state
         .dynamo
@@ -117,7 +118,7 @@ pub async fn get_portfolio(
 
 pub async fn add_holding(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Json(body): Json<AddHoldingRequest>,
 ) -> impl IntoResponse {
     let holding_id = Uuid::new_v4().to_string();
@@ -164,7 +165,7 @@ pub async fn add_holding(
 
 pub async fn update_holding(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Path(holding_id): Path<String>,
     Json(body): Json<UpdateHoldingRequest>,
 ) -> impl IntoResponse {
@@ -228,7 +229,7 @@ pub async fn update_holding(
 
 pub async fn delete_holding(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Path(holding_id): Path<String>,
 ) -> impl IntoResponse {
     let result = state

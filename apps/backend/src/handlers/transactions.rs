@@ -5,13 +5,14 @@ use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
-    Extension, Json,
+    Json,
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::models::{ApiError, Claims};
+use crate::middleware::auth::AuthUser;
+use crate::models::ApiError;
 use crate::AppState;
 
 #[derive(Serialize, Deserialize)]
@@ -111,7 +112,7 @@ fn item_to_transaction(item: &std::collections::HashMap<String, AttributeValue>)
 
 pub async fn list_transactions(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Query(params): Query<ListTransactionsQuery>,
 ) -> impl IntoResponse {
     let result = if let Some(ref budget_id) = params.budget_id {
@@ -160,7 +161,7 @@ pub async fn list_transactions(
 
 pub async fn create_transaction(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Json(body): Json<CreateTransactionRequest>,
 ) -> impl IntoResponse {
     let transaction_id = Uuid::new_v4().to_string();
@@ -228,7 +229,7 @@ pub async fn create_transaction(
 
 pub async fn get_transaction(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Path(transaction_id): Path<String>,
 ) -> impl IntoResponse {
     let result = state
@@ -266,7 +267,7 @@ pub async fn get_transaction(
 
 pub async fn update_transaction(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Path(transaction_id): Path<String>,
     Json(body): Json<UpdateTransactionRequest>,
 ) -> impl IntoResponse {
@@ -344,7 +345,7 @@ pub async fn update_transaction(
 
 pub async fn delete_transaction(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Path(transaction_id): Path<String>,
 ) -> impl IntoResponse {
     let result = state

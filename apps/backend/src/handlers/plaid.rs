@@ -5,12 +5,13 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
-    Extension, Json,
+    Json,
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{ApiError, Claims};
+use crate::middleware::auth::AuthUser;
+use crate::models::ApiError;
 use crate::AppState;
 
 fn plaid_base_url(env: &str) -> String {
@@ -49,7 +50,7 @@ pub struct LinkTokenResponse {
 
 pub async fn create_link_token(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
 ) -> impl IntoResponse {
     let client = reqwest::Client::new();
     let base = plaid_base_url(&state.plaid_env);
@@ -139,7 +140,7 @@ struct ExchangeTokenBody {
 
 pub async fn exchange_token(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Json(body): Json<ExchangeTokenRequest>,
 ) -> impl IntoResponse {
     let client = reqwest::Client::new();
@@ -304,7 +305,7 @@ pub struct LinkedAccount {
 
 pub async fn get_accounts(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
 ) -> impl IntoResponse {
     let result = state
         .dynamo
@@ -384,7 +385,7 @@ struct TransactionsSyncBody {
 
 pub async fn sync_transactions(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
 ) -> impl IntoResponse {
     let client = reqwest::Client::new();
     let base = plaid_base_url(&state.plaid_env);
@@ -494,7 +495,7 @@ struct ItemRemoveBody {
 
 pub async fn unlink_account(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Path(item_id): Path<String>,
 ) -> impl IntoResponse {
     let client = reqwest::Client::new();

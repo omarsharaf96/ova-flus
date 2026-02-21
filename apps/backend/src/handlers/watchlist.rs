@@ -5,12 +5,13 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
-    Extension, Json,
+    Json,
 };
 use chrono::Utc;
 use serde::Serialize;
 
-use crate::models::{ApiError, Claims};
+use crate::middleware::auth::AuthUser;
+use crate::models::ApiError;
 use crate::AppState;
 
 #[derive(Serialize)]
@@ -44,7 +45,7 @@ fn item_to_watchlist_item(
 
 pub async fn get_watchlist(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
 ) -> impl IntoResponse {
     let result = state
         .dynamo
@@ -80,7 +81,7 @@ pub struct AddToWatchlistRequest {
 
 pub async fn add_to_watchlist(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Json(body): Json<AddToWatchlistRequest>,
 ) -> impl IntoResponse {
     let now = Utc::now().to_rfc3339();
@@ -118,7 +119,7 @@ pub async fn add_to_watchlist(
 
 pub async fn remove_from_watchlist(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Path(symbol): Path<String>,
 ) -> impl IntoResponse {
     let result = state

@@ -1,10 +1,11 @@
 use std::sync::Arc;
 
 use aws_sdk_dynamodb::types::AttributeValue;
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Extension, Json};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 
-use crate::models::{ApiError, Claims};
+use crate::middleware::auth::AuthUser;
+use crate::models::ApiError;
 use crate::AppState;
 
 #[derive(Serialize)]
@@ -31,7 +32,7 @@ pub struct UpdateProfileRequest {
 
 pub async fn get_profile(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
 ) -> impl IntoResponse {
     let result = state
         .dynamo
@@ -85,7 +86,7 @@ pub async fn get_profile(
 
 pub async fn update_profile(
     State(state): State<Arc<AppState>>,
-    Extension(claims): Extension<Claims>,
+    AuthUser(claims): AuthUser,
     Json(body): Json<UpdateProfileRequest>,
 ) -> impl IntoResponse {
     let mut update_expr_parts: Vec<String> = Vec::new();
