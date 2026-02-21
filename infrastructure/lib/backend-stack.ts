@@ -24,35 +24,35 @@ export class BackendStack extends cdk.Stack {
 
     // SSM Parameters — values set via CDK context or replaced post-deploy
     new ssm.StringParameter(this, 'JwtSecret', {
-      parameterName: '/ovaflus/jwt_secret',
+      parameterName: '/ovaflus/prod/jwt-secret',
       stringValue: this.node.tryGetContext('jwtSecret') ?? 'REPLACE_ME',
       tier: ssm.ParameterTier.STANDARD,
       description: 'JWT signing secret',
     });
 
     new ssm.StringParameter(this, 'PlaidClientId', {
-      parameterName: '/ovaflus/plaid_client_id',
+      parameterName: '/ovaflus/prod/plaid-client-id',
       stringValue: this.node.tryGetContext('plaidClientId') ?? 'REPLACE_ME',
       tier: ssm.ParameterTier.STANDARD,
       description: 'Plaid client ID',
     });
 
     new ssm.StringParameter(this, 'PlaidSecret', {
-      parameterName: '/ovaflus/plaid_secret',
+      parameterName: '/ovaflus/prod/plaid-secret',
       stringValue: this.node.tryGetContext('plaidSecret') ?? 'REPLACE_ME',
       tier: ssm.ParameterTier.STANDARD,
       description: 'Plaid secret key',
     });
 
     new ssm.StringParameter(this, 'PlaidEnv', {
-      parameterName: '/ovaflus/plaid_env',
+      parameterName: '/ovaflus/prod/plaid-env',
       stringValue: this.node.tryGetContext('plaidEnv') ?? 'sandbox',
       tier: ssm.ParameterTier.STANDARD,
       description: 'Plaid environment',
     });
 
     new ssm.StringParameter(this, 'FinnhubApiKey', {
-      parameterName: '/ovaflus/finnhub_api_key',
+      parameterName: '/ovaflus/prod/finnhub-api-key',
       stringValue: this.node.tryGetContext('finnhubApiKey') ?? 'REPLACE_ME',
       tier: ssm.ParameterTier.STANDARD,
       description: 'Finnhub API key',
