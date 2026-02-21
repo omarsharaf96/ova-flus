@@ -2,7 +2,7 @@ name: Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [main, intial-dev]
   pull_request:
 
 env:
@@ -90,7 +90,7 @@ jobs:
 
   build-lambda:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/intial-dev') && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
@@ -113,7 +113,7 @@ jobs:
     needs: [test-ios, test-backend, build-lambda]
     if: |
       always() &&
-      github.ref == 'refs/heads/main' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/intial-dev') &&
       github.event_name == 'push' &&
       (needs.test-ios.result == 'success' || needs.test-ios.result == 'skipped') &&
       (needs.test-backend.result == 'success' || needs.test-backend.result == 'skipped') &&
