@@ -89,6 +89,9 @@ async fn main() -> Result<(), lambda_http::Error> {
         // Auth (public)
         .route("/auth/apple", post(handlers::auth::apple_sign_in))
         .route("/auth/google", post(handlers::auth::google_sign_in))
+        .route("/auth/email/signup", post(handlers::auth::email_sign_up))
+        .route("/auth/email/signin", post(handlers::auth::email_sign_in))
+        .route("/auth/email/confirm", post(handlers::auth::email_confirm))
         // Profile
         .route("/profile", get(handlers::profile::get_profile))
         .route("/profile", put(handlers::profile::update_profile))

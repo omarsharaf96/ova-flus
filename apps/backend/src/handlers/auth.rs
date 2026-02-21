@@ -1,7 +1,9 @@
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use aws_sdk_cognitoidentityprovider::types::{AuthFlowType, ChallengeNameType, MessageActionType};
+use aws_sdk_cognitoidentityprovider::types::{
+    AttributeType, AuthFlowType, ChallengeNameType, MessageActionType,
+};
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use hmac::{Hmac, Mac};
 use rand::Rng;
@@ -305,5 +307,191 @@ pub async fn google_sign_in(
     match cognito_social_sign_in(&state, &email).await {
         Ok(tokens) => (StatusCode::OK, Json(tokens)).into_response(),
         Err((status, err)) => (status, err).into_response(),
+    }
+}
+
+// --- Email auth ---
+
+#[derive(Deserialize)]
+pub struct EmailSignUpRequest {
+    pub email: String,
+    pub password: String,
+    pub name: String,
+}
+
+#[derive(Deserialize)]
+pub struct EmailSignInRequest {
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Deserialize)]
+pub struct EmailConfirmRequest {
+    pub email: String,
+    pub code: String,
+}
+
+#[derive(Serialize)]
+pub struct MessageResponse {
+    pub message: String,
+}
+
+pub async fn email_sign_up(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<EmailSignUpRequest>,
+) -> impl IntoResponse {
+    let name_attr = match AttributeType::builder()
+        .name("name")
+        .value(&body.name)
+        .build()
+    {
+        Ok(attr) => attr,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": "internal", "message": format!("Attribute build error: {e}")})),
+            ).into_response();
+        }
+    };
+
+    match state
+        .cognito
+        .sign_up()
+        .client_id(&state.cognito_app_client_id)
+        .username(&body.email)
+        .password(&body.password)
+        .user_attributes(name_attr)
+        .send()
+        .await
+    {
+        Ok(_) => (
+            StatusCode::OK,
+            Json(MessageResponse {
+                message: "Verification email sent".to_string(),
+            }),
+        )
+            .into_response(),
+        Err(e) => {
+            let err_str = format!("{e}");
+            tracing::error!("SignUp failed: {e}");
+            let (status, msg) = if err_str.contains("UsernameExistsException") {
+                (
+                    StatusCode::CONFLICT,
+                    "An account with this email already exists",
+                )
+            } else if err_str.contains("InvalidPasswordException") {
+                (
+                    StatusCode::BAD_REQUEST,
+                    "Password does not meet requirements",
+                )
+            } else {
+                (StatusCode::INTERNAL_SERVER_ERROR, "Sign up failed")
+            };
+            (
+                status,
+                Json(serde_json::json!({"error": "signup_failed", "message": msg})),
+            )
+                .into_response()
+        }
+    }
+}
+
+pub async fn email_sign_in(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<EmailSignInRequest>,
+) -> impl IntoResponse {
+    let auth_resp = state
+        .cognito
+        .admin_initiate_auth()
+        .auth_flow(AuthFlowType::AdminUserPasswordAuth)
+        .user_pool_id(&state.cognito_user_pool_id)
+        .client_id(&state.cognito_app_client_id)
+        .auth_parameters("USERNAME", &body.email)
+        .auth_parameters("PASSWORD", &body.password)
+        .send()
+        .await;
+
+    match auth_resp {
+        Ok(resp) => {
+            let result = match resp.authentication_result {
+                Some(r) => r,
+                None => {
+                    return (
+                        StatusCode::UNAUTHORIZED,
+                        Json(serde_json::json!({"error": "unauthorized", "message": "Authentication failed"})),
+                    ).into_response();
+                }
+            };
+            (
+                StatusCode::OK,
+                Json(CognitoTokenResponse {
+                    access_token: result.access_token.unwrap_or_default(),
+                    id_token: result.id_token.unwrap_or_default(),
+                    refresh_token: result.refresh_token.unwrap_or_default(),
+                    expires_in: result.expires_in,
+                }),
+            )
+                .into_response()
+        }
+        Err(e) => {
+            let err_str = format!("{e}");
+            tracing::error!("AdminInitiateAuth failed: {e}");
+            let (status, msg) = if err_str.contains("NotAuthorizedException") {
+                (StatusCode::UNAUTHORIZED, "Incorrect email or password")
+            } else if err_str.contains("UserNotConfirmedException") {
+                (
+                    StatusCode::FORBIDDEN,
+                    "Email not confirmed. Please check your email for a verification code",
+                )
+            } else if err_str.contains("UserNotFoundException") {
+                (StatusCode::UNAUTHORIZED, "Incorrect email or password")
+            } else {
+                (StatusCode::INTERNAL_SERVER_ERROR, "Sign in failed")
+            };
+            (
+                status,
+                Json(serde_json::json!({"error": "signin_failed", "message": msg})),
+            )
+                .into_response()
+        }
+    }
+}
+
+pub async fn email_confirm(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<EmailConfirmRequest>,
+) -> impl IntoResponse {
+    match state
+        .cognito
+        .confirm_sign_up()
+        .client_id(&state.cognito_app_client_id)
+        .username(&body.email)
+        .confirmation_code(&body.code)
+        .send()
+        .await
+    {
+        Ok(_) => (
+            StatusCode::OK,
+            Json(MessageResponse {
+                message: "Email confirmed".to_string(),
+            }),
+        )
+            .into_response(),
+        Err(e) => {
+            let err_str = format!("{e}");
+            tracing::error!("ConfirmSignUp failed: {e}");
+            let (status, msg) = if err_str.contains("CodeMismatchException") {
+                (StatusCode::BAD_REQUEST, "Invalid verification code")
+            } else if err_str.contains("ExpiredCodeException") {
+                (StatusCode::BAD_REQUEST, "Verification code has expired")
+            } else {
+                (StatusCode::INTERNAL_SERVER_ERROR, "Confirmation failed")
+            };
+            (
+                status,
+                Json(serde_json::json!({"error": "confirm_failed", "message": msg})),
+            )
+                .into_response()
+        }
     }
 }
