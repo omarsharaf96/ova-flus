@@ -67,7 +67,7 @@ private let tiers: [SubscriptionTierInfo] = [
 final class UpgradePlanViewModel: ObservableObject {
     @Published var products: [Product] = []
     @Published var purchasedProductIDs: Set<String> = []
-    @Published var selectedProductID: String = ProductID.premiumYearly
+    @Published var selectedProductID: String = ProductID.premiumMonthly
     @Published var isPurchasing = false
     @Published var errorMessage: String?
     @Published var purchaseSuccess = false
@@ -308,15 +308,6 @@ private struct TierCardView: View {
             // Billing options
             VStack(spacing: 10) {
                 BillingOptionRow(
-                    label: "Yearly",
-                    price: yearlyPrice,
-                    period: "per year",
-                    badge: savingsPercent.map { "Save \($0)%" },
-                    color: tier.color,
-                    isSelected: selectedProductID == tier.yearlyID
-                ) { selectedProductID = tier.yearlyID }
-
-                BillingOptionRow(
                     label: "Monthly",
                     price: monthlyPrice,
                     period: "per month",
@@ -324,6 +315,15 @@ private struct TierCardView: View {
                     color: tier.color,
                     isSelected: selectedProductID == tier.monthlyID
                 ) { selectedProductID = tier.monthlyID }
+
+                BillingOptionRow(
+                    label: "Yearly",
+                    price: yearlyPrice,
+                    period: "per year",
+                    badge: savingsPercent.map { "Save \($0)%" },
+                    color: tier.color,
+                    isSelected: selectedProductID == tier.yearlyID
+                ) { selectedProductID = tier.yearlyID }
             }
         }
         .padding()

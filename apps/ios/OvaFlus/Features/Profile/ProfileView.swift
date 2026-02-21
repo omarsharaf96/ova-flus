@@ -38,6 +38,11 @@ struct ProfileView: View {
 
                 // Quick actions
                 Section("Quick Actions") {
+                    NavigationLink {
+                        BankAccountsView()
+                    } label: {
+                        Label("Linked Banks", systemImage: "building.columns")
+                    }
                     NavigationLink(destination: GoalsView()) {
                         Label("Financial Goals", systemImage: "target")
                     }
@@ -83,5 +88,5 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView()
-        .environmentObject(AuthManager())
+        .environmentObject(AuthManager.shared)
 }

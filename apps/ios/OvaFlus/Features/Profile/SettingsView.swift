@@ -101,13 +101,8 @@ struct SettingsView: View {
                 }
             }
 
-            // Data
-            Section("Data") {
-                NavigationLink {
-                    BankAccountsView()
-                } label: {
-                    Label("Linked Banks", systemImage: "building.columns")
-                }
+            // More
+            Section("More") {
                 Button("Export All Data") {
                     showExportConfirmation = true
                 }
@@ -221,6 +216,6 @@ struct SettingsView: View {
 #Preview {
     NavigationStack {
         SettingsView()
-            .environmentObject(AuthManager())
+            .environmentObject(AuthManager.shared)
     }
 }

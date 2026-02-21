@@ -50,53 +50,95 @@ class AuthManager: ObservableObject {
         }
     }
 
-    // Access token: prefer social tokens, then fall back to stored email/password token
+    // Email/password tokens (Cognito via backend)
+    private var emailTokens: CognitoTokenResponse? {
+        didSet {
+            if let tokens = emailTokens {
+                LocalDataManager.shared.save(tokens, forKey: "email_cognito_tokens")
+            } else {
+                LocalDataManager.shared.remove(forKey: "email_cognito_tokens")
+            }
+        }
+    }
+
+    // Access token: prefer social tokens, then email tokens
     var accessToken: String? {
         if let tokens = socialTokens {
             return tokens.accessToken
         }
-        return storedEmailPasswordToken
-    }
-
-    // Email/password tokens stored locally (transitional — Amplify will handle this)
-    private var storedEmailPasswordToken: String? {
-        let token: String? = LocalDataManager.shared.load(forKey: "email_auth_token")
-        return token
+        if let tokens = emailTokens {
+            return tokens.accessToken
+        }
+        return nil
     }
 
     private let apiClient: APIClient
 
-    init(apiClient: APIClient = .shared) {
+    private init(apiClient: APIClient = .shared) {
         self.apiClient = apiClient
         loadStoredSession()
     }
 
     // MARK: - Email/Password
 
+    @Published var needsConfirmation = false
+    @Published var pendingConfirmationEmail: String?
+    var pendingPassword: String?
+
     func signIn(email: String, password: String) async throws {
         isLoading = true
         defer { isLoading = false }
         logger.info("Sign-in attempt for \(email)")
-        // Email/password auth — currently requires Amplify SDK
-        // After Amplify SDK is added, replace with:
-        // let result = try await Amplify.Auth.signIn(username: email, password: password)
-        // isAuthenticated = result.isSignedIn
-        throw NSError(
-            domain: "AuthError",
-            code: -1,
-            userInfo: [NSLocalizedDescriptionKey: "Email/password sign-in requires Amplify SDK. Please add Amplify SPM dependency."]
-        )
+        do {
+            let response: CognitoTokenResponse = try await apiClient.request(
+                .emailSignIn(email: email, password: password)
+            )
+            emailTokens = response
+            isAuthenticated = true
+            await fetchProfile()
+            logger.info("Email sign-in succeeded")
+        } catch {
+            logger.error("Email sign-in failed: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func signUp(email: String, password: String, name: String) async throws {
         isLoading = true
         defer { isLoading = false }
-        // TODO: Replace with Amplify.Auth.signUp after adding Amplify SPM
-        throw NSError(
-            domain: "AuthError",
-            code: -1,
-            userInfo: [NSLocalizedDescriptionKey: "Email/password sign-up requires Amplify SDK. Please add Amplify SPM dependency."]
-        )
+        logger.info("Sign-up attempt for \(email)")
+        do {
+            // Backend initiates sign-up; user must confirm via code
+            let _: [String: String] = try await apiClient.request(
+                .emailSignUp(email: email, password: password, name: name)
+            )
+            pendingConfirmationEmail = email
+            pendingPassword = password
+            needsConfirmation = true
+            logger.info("Sign-up succeeded, awaiting confirmation")
+        } catch {
+            logger.error("Email sign-up failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    func confirmSignUp(email: String, code: String, password: String) async throws {
+        isLoading = true
+        defer { isLoading = false }
+        logger.info("Confirming sign-up for \(email)")
+        do {
+            let _: [String: String] = try await apiClient.request(
+                .emailConfirmSignUp(email: email, code: code)
+            )
+            needsConfirmation = false
+            pendingConfirmationEmail = nil
+            logger.info("Confirmation succeeded for \(email), signing in automatically")
+            // Auto sign-in after confirmation
+            try await signIn(email: email, password: password)
+        } catch {
+            logger.error("Confirmation failed: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     // MARK: - Apple Sign In
@@ -152,26 +194,20 @@ class AuthManager: ObservableObject {
     func signOut() {
         logger.info("User signed out")
         socialTokens = nil
-        LocalDataManager.shared.remove(forKey: "email_auth_token")
-        LocalDataManager.shared.remove(forKey: "auth_tokens")
-        // Amplify sign out (uncomment after adding Amplify SPM):
-        // Task { _ = await Amplify.Auth.signOut() }
+        emailTokens = nil
         isAuthenticated = false
         currentUser = nil
+        pendingPassword = nil
     }
 
     // MARK: - Session Management
 
     func checkSession() async {
-        if socialTokens != nil {
+        if socialTokens != nil || emailTokens != nil {
             isAuthenticated = true
             await fetchProfile()
             return
         }
-        // Check Amplify session (uncomment after adding Amplify SPM):
-        // let session = try? await Amplify.Auth.fetchAuthSession()
-        // isAuthenticated = session?.isSignedIn ?? false
-        // if isAuthenticated { await fetchProfile() }
         isAuthenticated = false
     }
 
@@ -202,8 +238,9 @@ class AuthManager: ObservableObject {
             Task { await fetchProfile() }
             return
         }
-        // Check legacy email/password token
-        if storedEmailPasswordToken != nil {
+        // Check stored email tokens
+        if let tokens: CognitoTokenResponse = LocalDataManager.shared.load(forKey: "email_cognito_tokens") {
+            emailTokens = tokens
             isAuthenticated = true
             Task { await fetchProfile() }
         }
@@ -227,6 +264,7 @@ struct LoginView: View {
     @State private var password = ""
     @State private var isSignUp = false
     @State private var name = ""
+    @State private var confirmationCode = ""
     @State private var errorMessage: String?
 
     var body: some View {
@@ -246,173 +284,203 @@ struct LoginView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
 
-                    // Email/Password Section
-                    VStack(spacing: 16) {
-                        if isSignUp {
-                            TextField("Full Name", text: $name)
+                    if authManager.needsConfirmation {
+                        // Confirmation code entry
+                        VStack(spacing: 16) {
+                            Text("Check your email for a confirmation code")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+
+                            TextField("Confirmation Code", text: $confirmationCode)
                                 .textFieldStyle(.roundedBorder)
-                                .textContentType(.name)
+                                .keyboardType(.numberPad)
+                                .textContentType(.oneTimeCode)
                         }
-                        TextField("Email", text: $email)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.emailAddress)
-                            .keyboardType(.emailAddress)
-                            .autocorrectionDisabled()
-                            .textInputAutocapitalization(.never)
-                        SecureField("Password", text: $password)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(isSignUp ? .newPassword : .password)
-                    }
-                    .padding(.horizontal)
+                        .padding(.horizontal)
 
-                    if let errorMessage {
-                        Text(errorMessage)
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                            .padding(.horizontal)
-                    }
+                        if let errorMessage {
+                            Text(errorMessage)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                                .padding(.horizontal)
+                        }
 
-                    Button {
-                        Task {
-                            do {
-                                if isSignUp {
-                                    try await authManager.signUp(email: email, password: password, name: name)
-                                } else {
-                                    try await authManager.signIn(email: email, password: password)
+                        Button {
+                            Task {
+                                do {
+                                    try await authManager.confirmSignUp(
+                                        email: authManager.pendingConfirmationEmail ?? email,
+                                        code: confirmationCode,
+                                        password: authManager.pendingPassword ?? password
+                                    )
+                                } catch {
+                                    errorMessage = error.localizedDescription
                                 }
-                            } catch {
-                                errorMessage = error.localizedDescription
                             }
+                        } label: {
+                            Text("Confirm")
+                                .font(.headline)
+                                .frame(maxWidth: 320)
+                                .padding()
+                                .background(.blue)
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
-                    } label: {
-                        Text(isSignUp ? "Sign Up" : "Sign In")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(.blue)
-                            .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                    .padding(.horizontal)
-                    .disabled(authManager.isLoading)
+                        .disabled(authManager.isLoading || confirmationCode.isEmpty)
 
-                    // Divider
-                    HStack {
-                        Rectangle().frame(height: 1).foregroundStyle(.quaternary)
-                        Text("or").font(.subheadline).foregroundStyle(.secondary)
-                        Rectangle().frame(height: 1).foregroundStyle(.quaternary)
-                    }
-                    .padding(.horizontal)
+                        Button {
+                            authManager.needsConfirmation = false
+                            authManager.pendingConfirmationEmail = nil
+                            authManager.pendingPassword = nil
+                            confirmationCode = ""
+                            errorMessage = nil
+                        } label: {
+                            Text("Back to Sign In")
+                                .font(.subheadline)
+                        }
+                    } else {
+                        // Email/Password Section
+                        VStack(spacing: 16) {
+                            if isSignUp {
+                                TextField("Full Name", text: $name)
+                                    .textFieldStyle(.roundedBorder)
+                                    .textContentType(.name)
+                            }
+                            TextField("Email", text: $email)
+                                .textFieldStyle(.roundedBorder)
+                                .textContentType(.emailAddress)
+                                .keyboardType(.emailAddress)
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.never)
+                            SecureField("Password", text: $password)
+                                .textFieldStyle(.roundedBorder)
+                                .textContentType(isSignUp ? .newPassword : .password)
+                        }
+                        .padding(.horizontal)
 
-                    // Sign In with Apple
-                    SignInWithAppleButton(.signIn) { request in
-                        request.requestedScopes = [.email, .fullName]
-                    } onCompletion: { result in
-                        switch result {
-                        case .success(let auth):
-                            if let appleCredential = auth.credential as? ASAuthorizationAppleIDCredential {
-                                Task {
-                                    do {
-                                        try await authManager.signInWithApple(credential: appleCredential)
-                                    } catch {
-                                        errorMessage = "Apple Sign In failed: \(error.localizedDescription)"
+                        if let errorMessage {
+                            Text(errorMessage)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                                .padding(.horizontal)
+                        }
+
+                        Button {
+                            Task {
+                                do {
+                                    if isSignUp {
+                                        try await authManager.signUp(email: email, password: password, name: name)
+                                    } else {
+                                        try await authManager.signIn(email: email, password: password)
                                     }
+                                } catch {
+                                    errorMessage = error.localizedDescription
                                 }
                             }
-                        case .failure(let error):
-                            errorMessage = "Apple Sign In cancelled: \(error.localizedDescription)"
+                        } label: {
+                            Text(isSignUp ? "Sign Up" : "Sign In")
+                                .font(.headline)
+                                .frame(maxWidth: 320)
+                                .padding()
+                                .background(.blue)
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
-                    }
-                    .signInWithAppleButtonStyle(.black)
-                    .frame(height: 50)
-                    .padding(.horizontal)
+                        .disabled(authManager.isLoading)
 
-                    // Google Sign In (requires GoogleSignIn SPM)
-                    Button {
-                        Task { await signInWithGoogle() }
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "globe")
-                                .foregroundStyle(.blue)
-                            Text("Sign in with Google")
-                                .fontWeight(.medium)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(.white)
-                        .foregroundStyle(.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(.gray.opacity(0.3)))
-                    }
-                    .padding(.horizontal)
-
-                    Button {
-                        isSignUp.toggle()
-                        errorMessage = nil
-                    } label: {
-                        Text(isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
-                            .font(.subheadline)
-                    }
-
-                    // Biometric
-                    Button {
-                        Task {
-                            let success = await authManager.authenticateWithBiometric()
-                            if !success {
-                                errorMessage = "Biometric authentication failed"
-                            }
-                        }
-                    } label: {
-                        Label("Sign in with Face ID", systemImage: "faceid")
-                    }
-
-                    // Dev bypass
-                    VStack(spacing: 8) {
+                        // Divider
                         HStack {
                             Rectangle().frame(height: 1).foregroundStyle(.quaternary)
-                            Text("DEV ONLY").font(.caption2).foregroundStyle(.tertiary)
+                            Text("or").font(.subheadline).foregroundStyle(.secondary)
                             Rectangle().frame(height: 1).foregroundStyle(.quaternary)
                         }
-                        Button {
-                            authManager.isAuthenticated = true
-                        } label: {
-                            Text("Bypass Login (Dev)")
-                                .font(.subheadline.bold())
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 10)
-                                .background(Color.yellow.opacity(0.15))
-                                .foregroundStyle(Color(red: 0.71, green: 0.40, blue: 0.04))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.yellow.opacity(0.6), style: StrokeStyle(lineWidth: 1, dash: [4]))
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.horizontal)
+
+                        // Sign In with Apple
+                        SignInWithAppleButton(.signIn) { request in
+                            request.requestedScopes = [.email, .fullName]
+                        } onCompletion: { result in
+                            switch result {
+                            case .success(let auth):
+                                if let appleCredential = auth.credential as? ASAuthorizationAppleIDCredential {
+                                    Task {
+                                        do {
+                                            try await authManager.signInWithApple(credential: appleCredential)
+                                        } catch {
+                                            errorMessage = "Apple Sign In failed: \(error.localizedDescription)"
+                                        }
+                                    }
+                                }
+                            case .failure(let error):
+                                errorMessage = "Apple Sign In cancelled: \(error.localizedDescription)"
+                            }
                         }
+                        .signInWithAppleButtonStyle(.black)
+                        .frame(width: 280, height: 44)
+
+                        // Google Sign In — Coming soon (requires Google Client ID configuration)
+                        HStack(spacing: 12) {
+                            Image(systemName: "globe")
+                                .foregroundStyle(.gray)
+                            Text("Sign in with Google — Coming soon")
+                                .fontWeight(.medium)
+                        }
+                        .frame(width: 280, height: 44)
+                        .background(Color(.systemGray6))
+                        .foregroundStyle(.gray)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(.gray.opacity(0.3)))
+
+                        Button {
+                            isSignUp.toggle()
+                            errorMessage = nil
+                        } label: {
+                            Text(isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
+                                .font(.subheadline)
+                        }
+
+                        // Biometric
+                        Button {
+                            Task {
+                                let success = await authManager.authenticateWithBiometric()
+                                if !success {
+                                    errorMessage = "Biometric authentication failed"
+                                }
+                            }
+                        } label: {
+                            Label("Sign in with Face ID", systemImage: "faceid")
+                        }
+
+                        // Dev bypass
+                        VStack(spacing: 8) {
+                            HStack {
+                                Rectangle().frame(height: 1).foregroundStyle(.quaternary)
+                                Text("DEV ONLY").font(.caption2).foregroundStyle(.tertiary)
+                                Rectangle().frame(height: 1).foregroundStyle(.quaternary)
+                            }
+                            Button {
+                                authManager.isAuthenticated = true
+                            } label: {
+                                Text("Bypass Login (Dev)")
+                                    .font(.subheadline.bold())
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 10)
+                                    .background(Color.yellow.opacity(0.15))
+                                    .foregroundStyle(Color(red: 0.71, green: 0.40, blue: 0.04))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.yellow.opacity(0.6), style: StrokeStyle(lineWidth: 1, dash: [4]))
+                                    )
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                        }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
 
                     Spacer().frame(height: 32)
                 }
             }
         }
-    }
-
-    @MainActor
-    private func signInWithGoogle() async {
-        // Google Sign In requires GoogleSignIn SPM package.
-        // After adding: https://github.com/google/GoogleSignIn-iOS (version ~7.0)
-        // Uncomment the following:
-        //
-        // guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-        //       let rootVC = scene.windows.first?.rootViewController else { return }
-        // do {
-        //     let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
-        //     if let idToken = result.user.idToken?.tokenString {
-        //         try await authManager.signInWithGoogle(idToken: idToken)
-        //     }
-        // } catch {
-        //     errorMessage = error.localizedDescription
-        // }
-        errorMessage = "Google Sign In: Add GoogleSignIn SPM package to enable"
     }
 }

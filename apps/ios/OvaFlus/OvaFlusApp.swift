@@ -3,7 +3,7 @@ import SwiftData
 
 @main
 struct OvaFlusApp: App {
-    @StateObject private var authManager = AuthManager()
+    @StateObject private var authManager = AuthManager.shared
 
     let modelContainer: ModelContainer = {
         let schema = Schema([

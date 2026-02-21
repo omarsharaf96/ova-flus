@@ -14,7 +14,10 @@ struct AddTransactionView: View {
     @State private var merchantName: String = ""
     @State private var notes: String = ""
     @State private var showCamera = false
+    @State private var isRecurring: Bool = false
+    @State private var recurringFrequency: String = "Monthly"
 
+    private let frequencies = ["Weekly", "Bi-weekly", "Monthly", "Yearly"]
     private let categories = [
         "Food & Dining", "Transportation", "Shopping", "Entertainment",
         "Bills & Utilities", "Health & Fitness", "Travel", "Education",
@@ -58,6 +61,16 @@ struct AddTransactionView: View {
 
                     TextField("Notes", text: $notes, axis: .vertical)
                         .lineLimit(3...6)
+
+                    Toggle("Recurring", isOn: $isRecurring)
+
+                    if isRecurring {
+                        Picker("Frequency", selection: $recurringFrequency) {
+                            ForEach(frequencies, id: \.self) { freq in
+                                Text(freq).tag(freq)
+                            }
+                        }
+                    }
                 }
 
                 // Receipt
@@ -104,7 +117,9 @@ struct AddTransactionView: View {
             notes: notes.isEmpty ? nil : notes,
             date: date,
             budgetId: budget?.id,
-            budget: budget
+            budget: budget,
+            isRecurring: isRecurring,
+            recurringFrequency: isRecurring ? recurringFrequency : nil
         )
         modelContext.insert(transaction)
 

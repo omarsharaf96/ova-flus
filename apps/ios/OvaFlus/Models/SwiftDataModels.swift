@@ -65,10 +65,12 @@ final class TransactionModel {
     var date: Date
     var budgetId: String?
     var plaidTransactionId: String? // nil for manual entries
+    var isRecurring: Bool
+    var recurringFrequency: String? // "Weekly", "Bi-weekly", "Monthly", "Yearly"
 
     var budget: BudgetModel?
 
-    init(id: String = UUID().uuidString, amount: Double, type: String, category: String, merchantName: String? = nil, notes: String? = nil, date: Date = Date(), budgetId: String? = nil, budget: BudgetModel? = nil, plaidTransactionId: String? = nil) {
+    init(id: String = UUID().uuidString, amount: Double, type: String, category: String, merchantName: String? = nil, notes: String? = nil, date: Date = Date(), budgetId: String? = nil, budget: BudgetModel? = nil, plaidTransactionId: String? = nil, isRecurring: Bool = false, recurringFrequency: String? = nil) {
         self.id = id
         self.amount = amount
         self.type = type
@@ -79,6 +81,8 @@ final class TransactionModel {
         self.budgetId = budgetId
         self.budget = budget
         self.plaidTransactionId = plaidTransactionId
+        self.isRecurring = isRecurring
+        self.recurringFrequency = recurringFrequency
     }
 }
 

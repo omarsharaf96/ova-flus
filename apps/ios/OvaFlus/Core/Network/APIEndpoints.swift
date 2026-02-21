@@ -13,9 +13,12 @@ struct AnyEncodable: Encodable {
 }
 
 enum APIEndpoint {
-    // Auth (social sign-in — email/password handled by Amplify directly)
+    // Auth
     case appleSignIn(identityToken: String)
     case googleSignIn(idToken: String)
+    case emailSignIn(email: String, password: String)
+    case emailSignUp(email: String, password: String, name: String)
+    case emailConfirmSignUp(email: String, code: String)
 
     // Budgets
     case getBudgets
@@ -59,17 +62,21 @@ enum APIEndpoint {
         switch self {
         case .appleSignIn: return "/auth/apple"
         case .googleSignIn: return "/auth/google"
+        case .emailSignIn: return "/auth/email/signin"
+        case .emailSignUp: return "/auth/email/signup"
+        case .emailConfirmSignUp: return "/auth/email/confirm"
         case .getBudgets, .createBudget: return "/budgets"
         case .updateBudget(let budget): return "/budgets/\(budget.id)"
         case .deleteBudget(let id): return "/budgets/\(id)"
-        case .getTransactions(let budgetId): return "/budgets/\(budgetId)/transactions"
-        case .getRecentTransactions: return "/transactions/recent"
+        case .getTransactions: return "/transactions"
+        case .getRecentTransactions: return "/transactions"
         case .createTransaction: return "/transactions"
         case .deleteTransaction(let id): return "/transactions/\(id)"
         case .getPortfolio: return "/portfolio"
         case .getStockQuote(let symbol): return "/stocks/\(symbol)"
         case .getWatchlist: return "/watchlist"
-        case .addToWatchlist, .removeFromWatchlist: return "/watchlist"
+        case .addToWatchlist: return "/watchlist"
+        case .removeFromWatchlist(let symbol): return "/watchlist/\(symbol)"
         case .getStockNews(let symbol): return "/stocks/\(symbol)/news"
         case .searchStocks(let query): return "/stocks/search?q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query)"
         case .addHolding: return "/portfolio/holdings"
@@ -85,7 +92,8 @@ enum APIEndpoint {
 
     var method: String {
         switch self {
-        case .appleSignIn, .googleSignIn, .createBudget, .createTransaction, .addToWatchlist, .addHolding:
+        case .appleSignIn, .googleSignIn, .emailSignIn, .emailSignUp, .emailConfirmSignUp,
+             .createBudget, .createTransaction, .addToWatchlist, .addHolding:
             return "POST"
         case .updateBudget, .updateProfile:
             return "PUT"
@@ -104,6 +112,12 @@ enum APIEndpoint {
             return AnyEncodable(["identity_token": identityToken])
         case .googleSignIn(let idToken):
             return AnyEncodable(["id_token": idToken])
+        case .emailSignIn(let email, let password):
+            return AnyEncodable(["email": email, "password": password])
+        case .emailSignUp(let email, let password, let name):
+            return AnyEncodable(["email": email, "password": password, "name": name])
+        case .emailConfirmSignUp(let email, let code):
+            return AnyEncodable(["email": email, "code": code])
         case .createBudget(let budget), .updateBudget(let budget):
             return AnyEncodable(budget)
         case .createTransaction(let transaction):
