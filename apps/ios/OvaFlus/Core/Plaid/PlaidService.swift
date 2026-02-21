@@ -10,15 +10,36 @@ struct PlaidAccount: Codable {
     let accountType: String
     let mask: String
     let linkedAt: String
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case institutionId = "institution_id"
+        case institutionName = "institution_name"
+        case accountName = "account_name"
+        case accountType = "account_type"
+        case mask
+        case linkedAt = "linked_at"
+    }
 }
 
 struct PlaidTransactionDTO: Codable {
-    let plaidId: String
+    let id: String
+    let accountId: String
+    let name: String
     let amount: Double
-    let type: String
-    let category: String
-    let merchantName: String?
     let date: String
+    let category: [String]
+    let pending: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case accountId = "account_id"
+        case name
+        case amount
+        case date
+        case category
+        case pending
+    }
 }
 
 struct PlaidSyncResponse: Codable {
@@ -29,6 +50,10 @@ struct PlaidSyncResponse: Codable {
 
 struct PlaidLinkTokenResponse: Codable {
     let linkToken: String
+
+    enum CodingKeys: String, CodingKey {
+        case linkToken = "link_token"
+    }
 }
 
 @MainActor
@@ -139,25 +164,31 @@ final class PlaidService: ObservableObject {
             var affectedBudgets: Set<String> = []
 
             for dto in response.transactions {
-                guard !existingPlaidIds.contains(dto.plaidId) else { continue }
+                guard !dto.pending else { continue }
+                guard !existingPlaidIds.contains(dto.id) else { continue }
 
-                let appCategory = categoryMap[dto.category] ?? dto.category
+                let primaryCategory = dto.category.first ?? "Other"
+                let appCategory = categoryMap[primaryCategory] ?? primaryCategory
                 let matchedBudget = matchBudget(for: appCategory, budgets: budgets)
 
+                // Plaid: positive amount = money spent, negative = income
+                let txType = dto.amount > 0 ? "expense" : "income"
+                let absAmount = abs(dto.amount)
+
                 let transaction = TransactionModel(
-                    amount: dto.amount,
-                    type: dto.type,
+                    amount: absAmount,
+                    type: txType,
                     category: appCategory,
-                    merchantName: dto.merchantName,
+                    merchantName: dto.name,
                     date: formatter.date(from: dto.date) ?? Date(),
                     budgetId: matchedBudget?.id,
                     budget: matchedBudget,
-                    plaidTransactionId: dto.plaidId
+                    plaidTransactionId: dto.id
                 )
                 context.insert(transaction)
 
-                if let budget = matchedBudget, dto.type == "expense" {
-                    budget.spent += dto.amount
+                if let budget = matchedBudget, txType == "expense" {
+                    budget.spent += absAmount
                     budget.updatedAt = Date()
                     affectedBudgets.insert(budget.id)
                 }

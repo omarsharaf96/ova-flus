@@ -9,6 +9,8 @@ struct BankAccountsView: View {
     @State private var showPlaidLink = false
     @State private var linkToken: String?
     @State private var showError = false
+    @State private var isSyncing = false
+    @State private var showLinkSuccess = false
 
     private let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -49,14 +51,14 @@ struct BankAccountsView: View {
                             Task { await syncNow() }
                         } label: {
                             HStack {
-                                Label("Sync Now", systemImage: "arrow.clockwise")
+                                Label("Sync Transactions", systemImage: "arrow.clockwise")
                                 Spacer()
-                                if plaidService.isSyncing {
+                                if isSyncing {
                                     ProgressView()
                                 }
                             }
                         }
-                        .disabled(plaidService.isSyncing)
+                        .disabled(isSyncing)
                     }
                 }
             }
@@ -85,13 +87,18 @@ struct BankAccountsView: View {
                                         "mask": acct.mask ?? ""
                                     ]
                                 }
-                                try? await plaidService.exchangePublicToken(
-                                    publicToken,
-                                    institutionId: metadata.institution.id,
-                                    institutionName: metadata.institution.name,
-                                    accounts: accountsData,
-                                    context: modelContext
-                                )
+                                do {
+                                    try await plaidService.exchangePublicToken(
+                                        publicToken,
+                                        institutionId: metadata.institution.id,
+                                        institutionName: metadata.institution.name,
+                                        accounts: accountsData,
+                                        context: modelContext
+                                    )
+                                    showLinkSuccess = true
+                                } catch {
+                                    plaidService.errorMessage = error.localizedDescription
+                                }
                             }
                         },
                         onExit: { _ in
@@ -102,9 +109,16 @@ struct BankAccountsView: View {
                 }
             }
             .alert("Error", isPresented: $showError) {
-                Button("OK", role: .cancel) {}
+                Button("OK", role: .cancel) {
+                    plaidService.errorMessage = nil
+                }
             } message: {
                 Text(plaidService.errorMessage ?? "An error occurred.")
+            }
+            .alert("Account Linked", isPresented: $showLinkSuccess) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Your bank account has been linked successfully.")
             }
             .onChange(of: plaidService.errorMessage) { _, message in
                 showError = message != nil
@@ -124,6 +138,8 @@ struct BankAccountsView: View {
     }
 
     private func syncNow() async {
+        isSyncing = true
+        defer { isSyncing = false }
         await plaidService.syncTransactions(context: modelContext)
     }
 
@@ -143,33 +159,39 @@ private struct AccountRowView: View {
     let account: LinkedBankAccountModel
     let dateFormatter: DateFormatter
 
+    private var badgeColor: Color {
+        switch account.accountType.lowercased() {
+        case "checking": return .blue
+        case "savings": return .green
+        case "credit": return .orange
+        default: return .gray
+        }
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(account.institutionName)
+                    Text("\(account.institutionName)  \u{00B7}  \(account.accountName)  \u{00B7}\u{00B7}\(account.mask)")
                         .font(.subheadline.bold())
-                    Text("\(account.accountName) •••• \(account.mask)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
                 Spacer()
                 Text(account.accountType.capitalized)
-                    .font(.caption)
+                    .font(.caption2.weight(.medium))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color.blue.opacity(0.1))
-                    .foregroundStyle(.blue)
+                    .background(badgeColor.opacity(0.12))
+                    .foregroundStyle(badgeColor)
                     .clipShape(Capsule())
             }
             if let syncedAt = account.lastSyncedAt {
-                Text("Last synced: \(dateFormatter.string(from: syncedAt))")
+                Text("Last synced \(dateFormatter.string(from: syncedAt))")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             } else {
                 Text("Never synced")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.tertiary)
             }
         }
         .padding(.vertical, 4)

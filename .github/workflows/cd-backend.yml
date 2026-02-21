@@ -35,6 +35,14 @@ jobs:
     if: needs.changes.outputs.ios == 'true'
     steps:
       - uses: actions/checkout@v4
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Developer/Xcode/DerivedData
+            apps/ios/.build
+          key: spm-${{ runner.os }}-${{ hashFiles('apps/ios/**/Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
       - name: Build iOS
         run: |
           xcodebuild build \
@@ -55,6 +63,10 @@ jobs:
         with:
           targets: aarch64-unknown-linux-musl
           components: clippy
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/backend
       - name: Install cargo-lambda
         run: pip install cargo-lambda
       - name: Cargo check
@@ -74,6 +86,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: infrastructure/package-lock.json
       - name: Install CDK dependencies
         working-directory: infrastructure
         run: npm ci
@@ -99,6 +113,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-unknown-linux-musl
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/backend
       - name: Install cargo-lambda
         run: pip install cargo-lambda
       - name: Build Lambda (arm64)
@@ -138,6 +156,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: infrastructure/package-lock.json
       - name: Install CDK dependencies
         working-directory: infrastructure
         run: npm ci

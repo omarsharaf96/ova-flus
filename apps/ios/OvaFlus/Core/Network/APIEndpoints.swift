@@ -126,9 +126,9 @@ enum APIEndpoint {
             ])
         case .plaidExchangeToken(let publicToken, let institutionId, let institutionName, let accounts):
             return AnyEncodable([
-                "publicToken": AnyEncodable(publicToken),
-                "institutionId": AnyEncodable(institutionId),
-                "institutionName": AnyEncodable(institutionName),
+                "public_token": AnyEncodable(publicToken),
+                "institution_id": AnyEncodable(institutionId),
+                "institution_name": AnyEncodable(institutionName),
                 "accounts": AnyEncodable(accounts)
             ])
         default:

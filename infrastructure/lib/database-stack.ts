@@ -10,6 +10,7 @@ export interface DatabaseTables {
   watchlist: dynamodb.Table;
   goals: dynamodb.Table;
   plaidItems: dynamodb.Table;
+  plaidAccounts: dynamodb.Table;
 }
 
 export class DatabaseStack extends cdk.Stack {
@@ -97,6 +98,16 @@ export class DatabaseStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
-    this.tables = { users, budgets, transactions, portfolio, watchlist, goals, plaidItems };
+    // Plaid accounts table — PK: user_id, SK: account_id
+    const plaidAccounts = new dynamodb.Table(this, 'PlaidAccountsTable', {
+      tableName: 'ovaflus-plaid-accounts',
+      partitionKey: { name: 'user_id', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'account_id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    this.tables = { users, budgets, transactions, portfolio, watchlist, goals, plaidItems, plaidAccounts };
   }
 }
