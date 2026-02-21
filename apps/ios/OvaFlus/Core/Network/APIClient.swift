@@ -18,7 +18,7 @@ class APIClient {
         var request = URLRequest(url: url)
         request.httpMethod = endpoint.method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        if let token = await AuthManager.shared.accessToken {
+        if let token = AuthManager.shared.accessToken {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             logger.debug("\(endpoint.method) \(endpoint.path) — authenticated")
         } else {
