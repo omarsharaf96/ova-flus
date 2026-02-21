@@ -163,3 +163,10 @@ jobs:
             -c plaidSecret=${{ secrets.PLAID_SECRET }} \
             -c plaidEnv=${{ vars.PLAID_ENV }} \
             -c finnhubApiKey=${{ secrets.FINNHUB_API_KEY }}
+      - name: Update Lambda code
+        run: |
+          aws lambda update-function-code \
+            --function-name ovaflus-backend \
+            --s3-bucket ${{ env.ARTIFACT_BUCKET }} \
+            --s3-key ovaflus-backend.zip \
+            --publish
