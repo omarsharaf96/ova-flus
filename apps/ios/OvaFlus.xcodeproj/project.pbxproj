@@ -1,0 +1,737 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		061DF893EB0059D2893433AA /* PortfolioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F575F1B6C476204F7EAC3AF /* PortfolioView.swift */; };
+		092C02C5984CFFEDCD52D510 /* AddGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FBDD7CEBAD02AF2E73AFA3 /* AddGoalView.swift */; };
+		09DCB5671C3A58B6DE1BBE20 /* BankAccountsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE364ECFA3B0CC9B55020E9D /* BankAccountsView.swift */; };
+		0A5F97C31ACE7134F3ABD63A /* AddHoldingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15EF1E01A73224D16FE6397B /* AddHoldingView.swift */; };
+		0CE43DF2434F7A0BCF088C26 /* PlaidService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DD82DED61AC10B5C4D1070 /* PlaidService.swift */; };
+		0D06F74D332FE6C8D4DD189F /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52615C8CCF9C84B8B6561124 /* GoalDetailView.swift */; };
+		0D937BDCD7D463B7E0734619 /* AddBudgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203A63DF2DFF7DF7F8F0CA7E /* AddBudgetView.swift */; };
+		0DC95AF516519852C3167B3E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611A9998A79BB8DC35FF7783 /* SettingsView.swift */; };
+		13299685F7B1518114BC4282 /* BudgetListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646F7AD3F1BE73BFD3FC3F69 /* BudgetListView.swift */; };
+		142128166E965952FC3FA28F /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16ADAFB9271D066F05222ED /* AuthManager.swift */; };
+		18E5C6AA008D2234B6B6ABB2 /* BiometricAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC188D0134C5CBB41F1F492 /* BiometricAuth.swift */; };
+		19176DC89A3D7C8041A9030D /* BudgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F130BC58DAF224497DDE15 /* BudgetViewModel.swift */; };
+		22E7FAE992F44DAE47ADBC33 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2CFF2DF38F0FBE4291AFF5D /* User.swift */; };
+		2A90AE3F67C32CAFFB35CFE0 /* APIEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98501143579C0D0A7E081558 /* APIEndpoints.swift */; };
+		35C8431B33F9C902F59A5DCB /* View+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37049203C87EF6080A74B8 /* View+Helpers.swift */; };
+		440DC5F86287B59CE980401C /* PlaidLinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C872CA010C70612998E68 /* PlaidLinkView.swift */; };
+		4A143A587B31554BF029E5B9 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D340A39522E7A7EC961E4C /* APIClient.swift */; };
+		4D7B22CA3F125F8DFB109D3B /* AddTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CEA19D57CFB9F5F677CCCDF /* AddTransactionView.swift */; };
+		52252CA8AEB964F6BF14AC23 /* AWSCognitoAuthPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 76F7FA51C4036E3BA231B17C /* AWSCognitoAuthPlugin */; };
+		54445390E1615C7C9DEBA778 /* Budget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878657D9E5922BE802F9789A /* Budget.swift */; };
+		5D6E3DAA95B2EA22DA678B7D /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB54632327BE5DE18797A68 /* Transaction.swift */; };
+		5DB943D8F7A96ACE4381D029 /* OvaFlusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA2789786820ABC774A4A6D /* OvaFlusApp.swift */; };
+		6323ADCC0941B82415A05C6F /* StocksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 776179F14E050A14A3A84138 /* StocksViewModel.swift */; };
+		6D032B84165214F614BDD81A /* StockSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7903672C77B3723649F5CE /* StockSearchView.swift */; };
+		6EDD6AE37493C0441BF8CE92 /* DataMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85F758BEB431532AEB12D58 /* DataMigrationService.swift */; };
+		711E5372F95C6497F6DAF01F /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852D18065BC9989658C71644 /* Portfolio.swift */; };
+		8689824A29F7B93A5598A508 /* AnalyticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E79882700FE2CE5CE9555F /* AnalyticsViewModel.swift */; };
+		8D7F740CD4D25AD7F2B1ADA6 /* LocalDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE48203BBE92E43BFDAA882E /* LocalDataManager.swift */; };
+		8DF157B56A54EF2CDA1D84DA /* OvaFlusWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14E74F059A3FD7B91134DBC /* OvaFlusWidget.swift */; };
+		8E0F9E28817796B1FE9D03A4 /* Amplify in Frameworks */ = {isa = PBXBuildFile; productRef = 0B8A1ED5041E24F0121FFC30 /* Amplify */; };
+		95A86376B6E92B346BCD5AAE /* AWSAPIPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 7AC03479512BA0A3EA960822 /* AWSAPIPlugin */; };
+		95C736E65A4A23BFC53362CE /* BudgetDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF094DCB352FDE3C8348D778 /* BudgetDetailView.swift */; };
+		9CBCB1DE2E6512825A0B00C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ECEDC4F6150FDB4249748FDC /* Assets.xcassets */; };
+		ABFB535FEBEE4517FA9AC2BA /* StockDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44959AA4D0A3C3ABC9B38606 /* StockDetailView.swift */; };
+		B85C87BD29CC6B5853F29730 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1BD9F9F063A1D5EF893F1C6 /* SwiftDataModels.swift */; };
+		B9C70BD2BFDD2180E1E223A6 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3687783C3B5AEC245451B4F /* NotificationService.swift */; };
+		BA59B766879AA12F78D22B42 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70973BC65F89668A25636C57 /* ProfileView.swift */; };
+		C4045EFE9D9EC8B9E2DF7EE7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41144448FC7FC89A5006A27F /* ContentView.swift */; };
+		C67F48A79240895DD7C7354F /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048D1CBC64847643C334C585 /* DashboardViewModel.swift */; };
+		CD44C204368F57A8B7117C87 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F743D15E1D786E490D65D8C3 /* DashboardView.swift */; };
+		E9433A6928D30F464F98112A /* LinkKit in Frameworks */ = {isa = PBXBuildFile; productRef = F4601BD9E534EE8E1D2C778D /* LinkKit */; };
+		ED65E084BF6C622D9C87BD77 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94A7A881036CE547C92F6DE /* AnalyticsView.swift */; };
+		F06007BE217F0BCFECC4DC0E /* WatchlistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A68C4B16B4096812D0F852 /* WatchlistView.swift */; };
+		F2AF26BF5662665DFC40E2EA /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7FFCF0698E3BF771BA85490 /* GoalsView.swift */; };
+		FCB19AAE5285A2D9B60D6554 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02646C27D30F35CD7DBBB80A /* Color+Theme.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		02646C27D30F35CD7DBBB80A /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
+		048D1CBC64847643C334C585 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		0F575F1B6C476204F7EAC3AF /* PortfolioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioView.swift; sourceTree = "<group>"; };
+		15EF1E01A73224D16FE6397B /* AddHoldingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddHoldingView.swift; sourceTree = "<group>"; };
+		203A63DF2DFF7DF7F8F0CA7E /* AddBudgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddBudgetView.swift; sourceTree = "<group>"; };
+		3CA2789786820ABC774A4A6D /* OvaFlusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvaFlusApp.swift; sourceTree = "<group>"; };
+		41144448FC7FC89A5006A27F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		41DD82DED61AC10B5C4D1070 /* PlaidService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlaidService.swift; path = PlaidService.swift; sourceTree = "<group>"; };
+		44959AA4D0A3C3ABC9B38606 /* StockDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockDetailView.swift; sourceTree = "<group>"; };
+		49E79882700FE2CE5CE9555F /* AnalyticsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsViewModel.swift; sourceTree = "<group>"; };
+		4CEA19D57CFB9F5F677CCCDF /* AddTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTransactionView.swift; sourceTree = "<group>"; };
+		52615C8CCF9C84B8B6561124 /* GoalDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
+		611A9998A79BB8DC35FF7783 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		646F7AD3F1BE73BFD3FC3F69 /* BudgetListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetListView.swift; sourceTree = "<group>"; };
+		70973BC65F89668A25636C57 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		776179F14E050A14A3A84138 /* StocksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StocksViewModel.swift; sourceTree = "<group>"; };
+		79F130BC58DAF224497DDE15 /* BudgetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetViewModel.swift; sourceTree = "<group>"; };
+		852D18065BC9989658C71644 /* Portfolio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
+		878657D9E5922BE802F9789A /* Budget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Budget.swift; sourceTree = "<group>"; };
+		98501143579C0D0A7E081558 /* APIEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIEndpoints.swift; sourceTree = "<group>"; };
+		A08420FE46BA5CA7E4E97DDD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A14E74F059A3FD7B91134DBC /* OvaFlusWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvaFlusWidget.swift; sourceTree = "<group>"; };
+		A1BD9F9F063A1D5EF893F1C6 /* SwiftDataModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftDataModels.swift; sourceTree = "<group>"; };
+		A6D340A39522E7A7EC961E4C /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		A85F758BEB431532AEB12D58 /* DataMigrationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DataMigrationService.swift; sourceTree = "<group>"; };
+		AF094DCB352FDE3C8348D778 /* BudgetDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetDetailView.swift; sourceTree = "<group>"; };
+		AF7903672C77B3723649F5CE /* StockSearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StockSearchView.swift; sourceTree = "<group>"; };
+		B4FBDD7CEBAD02AF2E73AFA3 /* AddGoalView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddGoalView.swift; sourceTree = "<group>"; };
+		B5C6FD2C4A3169BE9ACF2198 /* OvaFlus.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = OvaFlus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BC9C872CA010C70612998E68 /* PlaidLinkView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlaidLinkView.swift; path = PlaidLinkView.swift; sourceTree = "<group>"; };
+		BCC188D0134C5CBB41F1F492 /* BiometricAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuth.swift; sourceTree = "<group>"; };
+		C16ADAFB9271D066F05222ED /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		DC37049203C87EF6080A74B8 /* View+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Helpers.swift"; sourceTree = "<group>"; };
+		DE48203BBE92E43BFDAA882E /* LocalDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDataManager.swift; sourceTree = "<group>"; };
+		E3687783C3B5AEC245451B4F /* NotificationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		E94A7A881036CE547C92F6DE /* AnalyticsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
+		ECEDC4F6150FDB4249748FDC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EDB54632327BE5DE18797A68 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		EE364ECFA3B0CC9B55020E9D /* BankAccountsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BankAccountsView.swift; sourceTree = "<group>"; };
+		F2CFF2DF38F0FBE4291AFF5D /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		F3DBE3F85C7DFB2E296EC343 /* OvaFlusWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = OvaFlusWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F743D15E1D786E490D65D8C3 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		F7FFCF0698E3BF771BA85490 /* GoalsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
+		F8A68C4B16B4096812D0F852 /* WatchlistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		884AA7A31D08C653A11AA52E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E0F9E28817796B1FE9D03A4 /* Amplify in Frameworks */,
+				52252CA8AEB964F6BF14AC23 /* AWSCognitoAuthPlugin in Frameworks */,
+				95A86376B6E92B346BCD5AAE /* AWSAPIPlugin in Frameworks */,
+				E9433A6928D30F464F98112A /* LinkKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		015C83E79E291C798D566EBE /* Plaid */ = {
+			isa = PBXGroup;
+			children = (
+				41DD82DED61AC10B5C4D1070 /* PlaidService.swift */,
+				BC9C872CA010C70612998E68 /* PlaidLinkView.swift */,
+			);
+			name = Plaid;
+			path = Plaid;
+			sourceTree = "<group>";
+		};
+		0343E7F5CF5E66D8FE68941F /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				49E79882700FE2CE5CE9555F /* AnalyticsViewModel.swift */,
+				E94A7A881036CE547C92F6DE /* AnalyticsView.swift */,
+			);
+			name = Analytics;
+			path = Analytics;
+			sourceTree = "<group>";
+		};
+		0B3982219EB5B014D3603EE7 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				F743D15E1D786E490D65D8C3 /* DashboardView.swift */,
+				048D1CBC64847643C334C585 /* DashboardViewModel.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		12B5E5E555E3587ED685D05A /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				70973BC65F89668A25636C57 /* ProfileView.swift */,
+				611A9998A79BB8DC35FF7783 /* SettingsView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		221402F2E8F8444B646955D2 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				9E193702ECDC58BB37600BF4 /* Budget */,
+				0B3982219EB5B014D3603EE7 /* Dashboard */,
+				12B5E5E555E3587ED685D05A /* Profile */,
+				388345F2B6624F86221AEDAF /* Stocks */,
+				0343E7F5CF5E66D8FE68941F /* Analytics */,
+				C44E51B39829CDF711BBD972 /* Goals */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		388345F2B6624F86221AEDAF /* Stocks */ = {
+			isa = PBXGroup;
+			children = (
+				0F575F1B6C476204F7EAC3AF /* PortfolioView.swift */,
+				44959AA4D0A3C3ABC9B38606 /* StockDetailView.swift */,
+				776179F14E050A14A3A84138 /* StocksViewModel.swift */,
+				F8A68C4B16B4096812D0F852 /* WatchlistView.swift */,
+				AF7903672C77B3723649F5CE /* StockSearchView.swift */,
+				15EF1E01A73224D16FE6397B /* AddHoldingView.swift */,
+			);
+			path = Stocks;
+			sourceTree = "<group>";
+		};
+		3C47EE2B7414421D62738F4A /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				A6D340A39522E7A7EC961E4C /* APIClient.swift */,
+				98501143579C0D0A7E081558 /* APIEndpoints.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		3CD0FD71D664D53D494FE330 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B5C6FD2C4A3169BE9ACF2198 /* OvaFlus.app */,
+				F3DBE3F85C7DFB2E296EC343 /* OvaFlusWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		521A017EA691B56136DA8155 /* OvaFlus */ = {
+			isa = PBXGroup;
+			children = (
+				ECEDC4F6150FDB4249748FDC /* Assets.xcassets */,
+				41144448FC7FC89A5006A27F /* ContentView.swift */,
+				A08420FE46BA5CA7E4E97DDD /* Info.plist */,
+				3CA2789786820ABC774A4A6D /* OvaFlusApp.swift */,
+				6AEE66504E7A1EDFF355C075 /* Core */,
+				221402F2E8F8444B646955D2 /* Features */,
+				5DFD2F3CD0126B1079700E4B /* Models */,
+			);
+			path = OvaFlus;
+			sourceTree = "<group>";
+		};
+		5DFD2F3CD0126B1079700E4B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				878657D9E5922BE802F9789A /* Budget.swift */,
+				852D18065BC9989658C71644 /* Portfolio.swift */,
+				EDB54632327BE5DE18797A68 /* Transaction.swift */,
+				F2CFF2DF38F0FBE4291AFF5D /* User.swift */,
+				A1BD9F9F063A1D5EF893F1C6 /* SwiftDataModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		66B5C6D00320AED9A1BA26F9 /* OvaFlusWidget */ = {
+			isa = PBXGroup;
+			children = (
+				A14E74F059A3FD7B91134DBC /* OvaFlusWidget.swift */,
+			);
+			name = OvaFlusWidget;
+			path = OvaFlus/OvaFlusWidget;
+			sourceTree = "<group>";
+		};
+		6AEE66504E7A1EDFF355C075 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				DD29B6EBB72836E8D32CE10B /* Auth */,
+				A5A1F0F45447186A91F8D1D7 /* Extensions */,
+				3C47EE2B7414421D62738F4A /* Network */,
+				84FA1E7EAB5128345DEF8E20 /* Persistence */,
+				FDB4A4B0206375829C12E8AD /* Notifications */,
+				015C83E79E291C798D566EBE /* Plaid */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		84FA1E7EAB5128345DEF8E20 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				DE48203BBE92E43BFDAA882E /* LocalDataManager.swift */,
+				A85F758BEB431532AEB12D58 /* DataMigrationService.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		9E193702ECDC58BB37600BF4 /* Budget */ = {
+			isa = PBXGroup;
+			children = (
+				4CEA19D57CFB9F5F677CCCDF /* AddTransactionView.swift */,
+				AF094DCB352FDE3C8348D778 /* BudgetDetailView.swift */,
+				646F7AD3F1BE73BFD3FC3F69 /* BudgetListView.swift */,
+				79F130BC58DAF224497DDE15 /* BudgetViewModel.swift */,
+				203A63DF2DFF7DF7F8F0CA7E /* AddBudgetView.swift */,
+				EE364ECFA3B0CC9B55020E9D /* BankAccountsView.swift */,
+			);
+			path = Budget;
+			sourceTree = "<group>";
+		};
+		9E84A0A31F5318AB3CA3B829 = {
+			isa = PBXGroup;
+			children = (
+				521A017EA691B56136DA8155 /* OvaFlus */,
+				66B5C6D00320AED9A1BA26F9 /* OvaFlusWidget */,
+				3CD0FD71D664D53D494FE330 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A5A1F0F45447186A91F8D1D7 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				02646C27D30F35CD7DBBB80A /* Color+Theme.swift */,
+				DC37049203C87EF6080A74B8 /* View+Helpers.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		C44E51B39829CDF711BBD972 /* Goals */ = {
+			isa = PBXGroup;
+			children = (
+				F7FFCF0698E3BF771BA85490 /* GoalsView.swift */,
+				52615C8CCF9C84B8B6561124 /* GoalDetailView.swift */,
+				B4FBDD7CEBAD02AF2E73AFA3 /* AddGoalView.swift */,
+			);
+			name = Goals;
+			path = Goals;
+			sourceTree = "<group>";
+		};
+		DD29B6EBB72836E8D32CE10B /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				C16ADAFB9271D066F05222ED /* AuthManager.swift */,
+				BCC188D0134C5CBB41F1F492 /* BiometricAuth.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		FDB4A4B0206375829C12E8AD /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				E3687783C3B5AEC245451B4F /* NotificationService.swift */,
+			);
+			name = Notifications;
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6C507D27F6F8530909833036 /* OvaFlusWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B830BD73215090AEA4A1F162 /* Build configuration list for PBXNativeTarget "OvaFlusWidget" */;
+			buildPhases = (
+				4392815713EE8D596230C19D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OvaFlusWidget;
+			productName = OvaFlusWidget;
+			productReference = F3DBE3F85C7DFB2E296EC343 /* OvaFlusWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		BAF020C981C29E001C3EEDCD /* OvaFlus */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 941C56123EBCC0FCE343047D /* Build configuration list for PBXNativeTarget "OvaFlus" */;
+			buildPhases = (
+				8BFBD66DCB87C3AF095C145C /* Sources */,
+				481A8FB630FE9C1B69B564A7 /* Resources */,
+				884AA7A31D08C653A11AA52E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OvaFlus;
+			packageProductDependencies = (
+				0B8A1ED5041E24F0121FFC30 /* Amplify */,
+				76F7FA51C4036E3BA231B17C /* AWSCognitoAuthPlugin */,
+				7AC03479512BA0A3EA960822 /* AWSAPIPlugin */,
+				F4601BD9E534EE8E1D2C778D /* LinkKit */,
+			);
+			productName = OvaFlus;
+			productReference = B5C6FD2C4A3169BE9ACF2198 /* OvaFlus.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E9F4BE192D587FD0994D3CC2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					6C507D27F6F8530909833036 = {
+						DevelopmentTeam = "";
+					};
+					BAF020C981C29E001C3EEDCD = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 9A85DEB5C55852DEBE1C5621 /* Build configuration list for PBXProject "OvaFlus" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 9E84A0A31F5318AB3CA3B829;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4407D2D9BC66E04D4C7778AC /* XCRemoteSwiftPackageReference "amplify-swift" */,
+				A0299CB6875F10D6C4866562 /* XCRemoteSwiftPackageReference "plaid-link-ios-spm" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3CD0FD71D664D53D494FE330 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BAF020C981C29E001C3EEDCD /* OvaFlus */,
+				6C507D27F6F8530909833036 /* OvaFlusWidget */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		481A8FB630FE9C1B69B564A7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9CBCB1DE2E6512825A0B00C9 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4392815713EE8D596230C19D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DF157B56A54EF2CDA1D84DA /* OvaFlusWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8BFBD66DCB87C3AF095C145C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A143A587B31554BF029E5B9 /* APIClient.swift in Sources */,
+				2A90AE3F67C32CAFFB35CFE0 /* APIEndpoints.swift in Sources */,
+				4D7B22CA3F125F8DFB109D3B /* AddTransactionView.swift in Sources */,
+				142128166E965952FC3FA28F /* AuthManager.swift in Sources */,
+				18E5C6AA008D2234B6B6ABB2 /* BiometricAuth.swift in Sources */,
+				54445390E1615C7C9DEBA778 /* Budget.swift in Sources */,
+				95C736E65A4A23BFC53362CE /* BudgetDetailView.swift in Sources */,
+				13299685F7B1518114BC4282 /* BudgetListView.swift in Sources */,
+				19176DC89A3D7C8041A9030D /* BudgetViewModel.swift in Sources */,
+				FCB19AAE5285A2D9B60D6554 /* Color+Theme.swift in Sources */,
+				C4045EFE9D9EC8B9E2DF7EE7 /* ContentView.swift in Sources */,
+				CD44C204368F57A8B7117C87 /* DashboardView.swift in Sources */,
+				C67F48A79240895DD7C7354F /* DashboardViewModel.swift in Sources */,
+				8D7F740CD4D25AD7F2B1ADA6 /* LocalDataManager.swift in Sources */,
+				5DB943D8F7A96ACE4381D029 /* OvaFlusApp.swift in Sources */,
+				711E5372F95C6497F6DAF01F /* Portfolio.swift in Sources */,
+				061DF893EB0059D2893433AA /* PortfolioView.swift in Sources */,
+				BA59B766879AA12F78D22B42 /* ProfileView.swift in Sources */,
+				0DC95AF516519852C3167B3E /* SettingsView.swift in Sources */,
+				ABFB535FEBEE4517FA9AC2BA /* StockDetailView.swift in Sources */,
+				6323ADCC0941B82415A05C6F /* StocksViewModel.swift in Sources */,
+				5D6E3DAA95B2EA22DA678B7D /* Transaction.swift in Sources */,
+				22E7FAE992F44DAE47ADBC33 /* User.swift in Sources */,
+				35C8431B33F9C902F59A5DCB /* View+Helpers.swift in Sources */,
+				F06007BE217F0BCFECC4DC0E /* WatchlistView.swift in Sources */,
+				0D937BDCD7D463B7E0734619 /* AddBudgetView.swift in Sources */,
+				8689824A29F7B93A5598A508 /* AnalyticsViewModel.swift in Sources */,
+				ED65E084BF6C622D9C87BD77 /* AnalyticsView.swift in Sources */,
+				F2AF26BF5662665DFC40E2EA /* GoalsView.swift in Sources */,
+				0D06F74D332FE6C8D4DD189F /* GoalDetailView.swift in Sources */,
+				092C02C5984CFFEDCD52D510 /* AddGoalView.swift in Sources */,
+				6D032B84165214F614BDD81A /* StockSearchView.swift in Sources */,
+				0A5F97C31ACE7134F3ABD63A /* AddHoldingView.swift in Sources */,
+				B9C70BD2BFDD2180E1E223A6 /* NotificationService.swift in Sources */,
+				B85C87BD29CC6B5853F29730 /* SwiftDataModels.swift in Sources */,
+				6EDD6AE37493C0441BF8CE92 /* DataMigrationService.swift in Sources */,
+				0CE43DF2434F7A0BCF088C26 /* PlaidService.swift in Sources */,
+				440DC5F86287B59CE980401C /* PlaidLinkView.swift in Sources */,
+				09DCB5671C3A58B6DE1BBE20 /* BankAccountsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2A7233065D70C296820DD20D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = OvaFlus/OvaFlusWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.flus.app.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		39A9B54AA7768D74F128B32E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		3E2133844FBF1AD9BE2506E5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = OvaFlus/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.flus.app;
+				PRODUCT_NAME = Flus;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		59940B67122B93ACD31F00BF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = OvaFlus/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.flus.app;
+				PRODUCT_NAME = Flus;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5B4BDEA5D3DEF8A3DF388F0D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = OvaFlus/OvaFlusWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.flus.app.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8306C6A7198F679FC2201BEE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		941C56123EBCC0FCE343047D /* Build configuration list for PBXNativeTarget "OvaFlus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				59940B67122B93ACD31F00BF /* Debug */,
+				3E2133844FBF1AD9BE2506E5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9A85DEB5C55852DEBE1C5621 /* Build configuration list for PBXProject "OvaFlus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8306C6A7198F679FC2201BEE /* Debug */,
+				39A9B54AA7768D74F128B32E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B830BD73215090AEA4A1F162 /* Build configuration list for PBXNativeTarget "OvaFlusWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B4BDEA5D3DEF8A3DF388F0D /* Debug */,
+				2A7233065D70C296820DD20D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4407D2D9BC66E04D4C7778AC /* XCRemoteSwiftPackageReference "amplify-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/aws-amplify/amplify-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+		A0299CB6875F10D6C4866562 /* XCRemoteSwiftPackageReference "plaid-link-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/plaid/plaid-link-ios-spm";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0B8A1ED5041E24F0121FFC30 /* Amplify */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4407D2D9BC66E04D4C7778AC /* XCRemoteSwiftPackageReference "amplify-swift" */;
+			productName = Amplify;
+		};
+		76F7FA51C4036E3BA231B17C /* AWSCognitoAuthPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4407D2D9BC66E04D4C7778AC /* XCRemoteSwiftPackageReference "amplify-swift" */;
+			productName = AWSCognitoAuthPlugin;
+		};
+		7AC03479512BA0A3EA960822 /* AWSAPIPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4407D2D9BC66E04D4C7778AC /* XCRemoteSwiftPackageReference "amplify-swift" */;
+			productName = AWSAPIPlugin;
+		};
+		F4601BD9E534EE8E1D2C778D /* LinkKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A0299CB6875F10D6C4866562 /* XCRemoteSwiftPackageReference "plaid-link-ios-spm" */;
+			productName = LinkKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = E9F4BE192D587FD0994D3CC2 /* Project object */;
+}
