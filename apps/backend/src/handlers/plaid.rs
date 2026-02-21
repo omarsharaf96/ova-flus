@@ -114,10 +114,20 @@ pub async fn create_link_token(
 // --- Exchange Token ---
 
 #[derive(Deserialize)]
+pub struct PlaidAccountInfo {
+    pub id: String,
+    pub name: String,
+    pub subtype: String,
+    pub mask: Option<String>,
+}
+
+#[derive(Deserialize)]
 pub struct ExchangeTokenRequest {
     pub public_token: String,
     pub institution_id: String,
     pub institution_name: String,
+    #[serde(default)]
+    pub accounts: Vec<PlaidAccountInfo>,
 }
 
 #[derive(Serialize)]
@@ -192,7 +202,7 @@ pub async fn exchange_token(
 
     let now = Utc::now().to_rfc3339();
 
-    // Store in DynamoDB
+    // Store Plaid item in DynamoDB (for access_token lookup)
     let put_result = state
         .dynamo
         .put_item()
@@ -208,36 +218,88 @@ pub async fn exchange_token(
             "institution_name",
             AttributeValue::S(body.institution_name.clone()),
         )
-        .item("created_at", AttributeValue::S(now))
+        .item("created_at", AttributeValue::S(now.clone()))
         .send()
         .await;
 
-    match put_result {
-        Ok(_) => (
-            StatusCode::OK,
-            Json(serde_json::json!({
-                "item_id": item_id,
-                "institution_id": body.institution_id,
-                "institution_name": body.institution_name
-            })),
-        )
-            .into_response(),
-        Err(e) => (
+    if let Err(e) = put_result {
+        return (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(ApiError::new(format!("Failed to store Plaid item: {}", e))),
         )
-            .into_response(),
+            .into_response();
     }
+
+    // Store each account in ovaflus-plaid-accounts table
+    let mut response_accounts: Vec<serde_json::Value> = Vec::new();
+    for account in &body.accounts {
+        let acct_put = state
+            .dynamo
+            .put_item()
+            .table_name("ovaflus-plaid-accounts")
+            .item("user_id", AttributeValue::S(claims.sub.clone()))
+            .item("account_id", AttributeValue::S(account.id.clone()))
+            .item("item_id", AttributeValue::S(item_id.clone()))
+            .item(
+                "institution_id",
+                AttributeValue::S(body.institution_id.clone()),
+            )
+            .item(
+                "institution_name",
+                AttributeValue::S(body.institution_name.clone()),
+            )
+            .item("account_name", AttributeValue::S(account.name.clone()))
+            .item("account_type", AttributeValue::S(account.subtype.clone()))
+            .item(
+                "mask",
+                AttributeValue::S(account.mask.clone().unwrap_or_default()),
+            )
+            .item("linked_at", AttributeValue::S(now.clone()))
+            .send()
+            .await;
+
+        if let Err(e) = acct_put {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ApiError::new(format!(
+                    "Failed to store Plaid account: {}",
+                    e
+                ))),
+            )
+                .into_response();
+        }
+
+        response_accounts.push(serde_json::json!({
+            "id": account.id,
+            "name": account.name,
+            "type": account.subtype,
+            "mask": account.mask,
+        }));
+    }
+
+    (
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "item_id": item_id,
+            "institution_id": body.institution_id,
+            "institution_name": body.institution_name,
+            "accounts": response_accounts,
+        })),
+    )
+        .into_response()
 }
 
 // --- Get Accounts ---
 
 #[derive(Serialize)]
 pub struct LinkedAccount {
-    pub item_id: String,
+    pub id: String,
     pub institution_id: String,
     pub institution_name: String,
-    pub created_at: String,
+    pub account_name: String,
+    pub account_type: String,
+    pub mask: String,
+    pub linked_at: String,
 }
 
 pub async fn get_accounts(
@@ -247,7 +309,7 @@ pub async fn get_accounts(
     let result = state
         .dynamo
         .query()
-        .table_name("ovaflus-plaid-items")
+        .table_name("ovaflus-plaid-accounts")
         .key_condition_expression("user_id = :uid")
         .expression_attribute_values(":uid", AttributeValue::S(claims.sub.clone()))
         .send()
@@ -260,8 +322,8 @@ pub async fn get_accounts(
                 .unwrap_or_default()
                 .iter()
                 .map(|item| LinkedAccount {
-                    item_id: item
-                        .get("item_id")
+                    id: item
+                        .get("account_id")
                         .and_then(|v| v.as_s().ok())
                         .cloned()
                         .unwrap_or_default(),
@@ -275,8 +337,23 @@ pub async fn get_accounts(
                         .and_then(|v| v.as_s().ok())
                         .cloned()
                         .unwrap_or_default(),
-                    created_at: item
-                        .get("created_at")
+                    account_name: item
+                        .get("account_name")
+                        .and_then(|v| v.as_s().ok())
+                        .cloned()
+                        .unwrap_or_default(),
+                    account_type: item
+                        .get("account_type")
+                        .and_then(|v| v.as_s().ok())
+                        .cloned()
+                        .unwrap_or_default(),
+                    mask: item
+                        .get("mask")
+                        .and_then(|v| v.as_s().ok())
+                        .cloned()
+                        .unwrap_or_default(),
+                    linked_at: item
+                        .get("linked_at")
                         .and_then(|v| v.as_s().ok())
                         .cloned()
                         .unwrap_or_default(),
@@ -333,7 +410,9 @@ pub async fn sync_transactions(
         }
     };
 
-    let mut all_added: Vec<serde_json::Value> = Vec::new();
+    let mut all_transactions: Vec<serde_json::Value> = Vec::new();
+    let mut total_added: usize = 0;
+    let mut total_modified: usize = 0;
 
     for item in &items {
         let access_token = match item.get("access_token").and_then(|v| v.as_s().ok()) {
@@ -356,7 +435,16 @@ pub async fn sync_transactions(
         if let Ok(resp) = result {
             if let Ok(data) = resp.json::<serde_json::Value>().await {
                 if let Some(added) = data.get("added").and_then(|v| v.as_array()) {
-                    all_added.extend(added.clone());
+                    total_added += added.len();
+                    for txn in added {
+                        all_transactions.push(map_plaid_transaction(txn));
+                    }
+                }
+                if let Some(modified) = data.get("modified").and_then(|v| v.as_array()) {
+                    total_modified += modified.len();
+                    for txn in modified {
+                        all_transactions.push(map_plaid_transaction(txn));
+                    }
                 }
             }
         }
@@ -365,11 +453,34 @@ pub async fn sync_transactions(
     (
         StatusCode::OK,
         Json(serde_json::json!({
-            "added": all_added,
-            "count": all_added.len()
+            "transactions": all_transactions,
+            "added": total_added,
+            "modified": total_modified,
         })),
     )
         .into_response()
+}
+
+fn map_plaid_transaction(txn: &serde_json::Value) -> serde_json::Value {
+    let category = txn
+        .get("category")
+        .and_then(|v| v.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_str().map(String::from))
+                .collect::<Vec<String>>()
+        })
+        .unwrap_or_default();
+
+    serde_json::json!({
+        "id": txn.get("transaction_id").and_then(|v| v.as_str()).unwrap_or(""),
+        "account_id": txn.get("account_id").and_then(|v| v.as_str()).unwrap_or(""),
+        "name": txn.get("name").and_then(|v| v.as_str()).unwrap_or(""),
+        "amount": txn.get("amount").and_then(|v| v.as_f64()).unwrap_or(0.0),
+        "date": txn.get("date").and_then(|v| v.as_str()).unwrap_or(""),
+        "category": category,
+        "pending": txn.get("pending").and_then(|v| v.as_bool()).unwrap_or(false),
+    })
 }
 
 // --- Unlink Account ---
