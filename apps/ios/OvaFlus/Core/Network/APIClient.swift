@@ -4,7 +4,7 @@ class APIClient {
     static let shared = APIClient()
     private let baseURL: String
 
-    init(baseURL: String = ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "https://api.ova-flus.com/v1") {
+    init(baseURL: String = ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "https://vjiibk7bi7.execute-api.us-east-1.amazonaws.com") {
         self.baseURL = baseURL
     }
 

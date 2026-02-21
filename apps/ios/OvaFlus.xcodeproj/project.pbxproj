@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		061DF893EB0059D2893433AA /* PortfolioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F575F1B6C476204F7EAC3AF /* PortfolioView.swift */; };
+		092C02C5984CFFEDCD52D510 /* AddGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FBDD7CEBAD02AF2E73AFA3 /* AddGoalView.swift */; };
+		09DCB5671C3A58B6DE1BBE20 /* BankAccountsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE364ECFA3B0CC9B55020E9D /* BankAccountsView.swift */; };
+		0A5F97C31ACE7134F3ABD63A /* AddHoldingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15EF1E01A73224D16FE6397B /* AddHoldingView.swift */; };
+		0CE43DF2434F7A0BCF088C26 /* PlaidService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DD82DED61AC10B5C4D1070 /* PlaidService.swift */; };
+		0D06F74D332FE6C8D4DD189F /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52615C8CCF9C84B8B6561124 /* GoalDetailView.swift */; };
+		0D937BDCD7D463B7E0734619 /* AddBudgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203A63DF2DFF7DF7F8F0CA7E /* AddBudgetView.swift */; };
 		0DC95AF516519852C3167B3E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611A9998A79BB8DC35FF7783 /* SettingsView.swift */; };
 		13299685F7B1518114BC4282 /* BudgetListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646F7AD3F1BE73BFD3FC3F69 /* BudgetListView.swift */; };
 		142128166E965952FC3FA28F /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16ADAFB9271D066F05222ED /* AuthManager.swift */; };
@@ -16,6 +22,7 @@
 		22E7FAE992F44DAE47ADBC33 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2CFF2DF38F0FBE4291AFF5D /* User.swift */; };
 		2A90AE3F67C32CAFFB35CFE0 /* APIEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98501143579C0D0A7E081558 /* APIEndpoints.swift */; };
 		35C8431B33F9C902F59A5DCB /* View+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37049203C87EF6080A74B8 /* View+Helpers.swift */; };
+		440DC5F86287B59CE980401C /* PlaidLinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C872CA010C70612998E68 /* PlaidLinkView.swift */; };
 		4A143A587B31554BF029E5B9 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D340A39522E7A7EC961E4C /* APIClient.swift */; };
 		4D7B22CA3F125F8DFB109D3B /* AddTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CEA19D57CFB9F5F677CCCDF /* AddTransactionView.swift */; };
 		52252CA8AEB964F6BF14AC23 /* AWSCognitoAuthPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 76F7FA51C4036E3BA231B17C /* AWSCognitoAuthPlugin */; };
@@ -23,7 +30,10 @@
 		5D6E3DAA95B2EA22DA678B7D /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB54632327BE5DE18797A68 /* Transaction.swift */; };
 		5DB943D8F7A96ACE4381D029 /* OvaFlusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA2789786820ABC774A4A6D /* OvaFlusApp.swift */; };
 		6323ADCC0941B82415A05C6F /* StocksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 776179F14E050A14A3A84138 /* StocksViewModel.swift */; };
+		6D032B84165214F614BDD81A /* StockSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7903672C77B3723649F5CE /* StockSearchView.swift */; };
+		6EDD6AE37493C0441BF8CE92 /* DataMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85F758BEB431532AEB12D58 /* DataMigrationService.swift */; };
 		711E5372F95C6497F6DAF01F /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852D18065BC9989658C71644 /* Portfolio.swift */; };
+		8689824A29F7B93A5598A508 /* AnalyticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E79882700FE2CE5CE9555F /* AnalyticsViewModel.swift */; };
 		8D7F740CD4D25AD7F2B1ADA6 /* LocalDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE48203BBE92E43BFDAA882E /* LocalDataManager.swift */; };
 		8DF157B56A54EF2CDA1D84DA /* OvaFlusWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14E74F059A3FD7B91134DBC /* OvaFlusWidget.swift */; };
 		8E0F9E28817796B1FE9D03A4 /* Amplify in Frameworks */ = {isa = PBXBuildFile; productRef = 0B8A1ED5041E24F0121FFC30 /* Amplify */; };
@@ -31,11 +41,16 @@
 		95C736E65A4A23BFC53362CE /* BudgetDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF094DCB352FDE3C8348D778 /* BudgetDetailView.swift */; };
 		9CBCB1DE2E6512825A0B00C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ECEDC4F6150FDB4249748FDC /* Assets.xcassets */; };
 		ABFB535FEBEE4517FA9AC2BA /* StockDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44959AA4D0A3C3ABC9B38606 /* StockDetailView.swift */; };
+		B85C87BD29CC6B5853F29730 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1BD9F9F063A1D5EF893F1C6 /* SwiftDataModels.swift */; };
+		B9C70BD2BFDD2180E1E223A6 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3687783C3B5AEC245451B4F /* NotificationService.swift */; };
 		BA59B766879AA12F78D22B42 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70973BC65F89668A25636C57 /* ProfileView.swift */; };
 		C4045EFE9D9EC8B9E2DF7EE7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41144448FC7FC89A5006A27F /* ContentView.swift */; };
 		C67F48A79240895DD7C7354F /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048D1CBC64847643C334C585 /* DashboardViewModel.swift */; };
 		CD44C204368F57A8B7117C87 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F743D15E1D786E490D65D8C3 /* DashboardView.swift */; };
+		E9433A6928D30F464F98112A /* LinkKit in Frameworks */ = {isa = PBXBuildFile; productRef = F4601BD9E534EE8E1D2C778D /* LinkKit */; };
+		ED65E084BF6C622D9C87BD77 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94A7A881036CE547C92F6DE /* AnalyticsView.swift */; };
 		F06007BE217F0BCFECC4DC0E /* WatchlistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A68C4B16B4096812D0F852 /* WatchlistView.swift */; };
+		F2AF26BF5662665DFC40E2EA /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7FFCF0698E3BF771BA85490 /* GoalsView.swift */; };
 		FCB19AAE5285A2D9B60D6554 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02646C27D30F35CD7DBBB80A /* Color+Theme.swift */; };
 /* End PBXBuildFile section */
 
@@ -43,10 +58,15 @@
 		02646C27D30F35CD7DBBB80A /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
 		048D1CBC64847643C334C585 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		0F575F1B6C476204F7EAC3AF /* PortfolioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioView.swift; sourceTree = "<group>"; };
+		15EF1E01A73224D16FE6397B /* AddHoldingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddHoldingView.swift; sourceTree = "<group>"; };
+		203A63DF2DFF7DF7F8F0CA7E /* AddBudgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddBudgetView.swift; sourceTree = "<group>"; };
 		3CA2789786820ABC774A4A6D /* OvaFlusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvaFlusApp.swift; sourceTree = "<group>"; };
 		41144448FC7FC89A5006A27F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		41DD82DED61AC10B5C4D1070 /* PlaidService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlaidService.swift; path = PlaidService.swift; sourceTree = "<group>"; };
 		44959AA4D0A3C3ABC9B38606 /* StockDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockDetailView.swift; sourceTree = "<group>"; };
+		49E79882700FE2CE5CE9555F /* AnalyticsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsViewModel.swift; sourceTree = "<group>"; };
 		4CEA19D57CFB9F5F677CCCDF /* AddTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTransactionView.swift; sourceTree = "<group>"; };
+		52615C8CCF9C84B8B6561124 /* GoalDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
 		611A9998A79BB8DC35FF7783 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		646F7AD3F1BE73BFD3FC3F69 /* BudgetListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetListView.swift; sourceTree = "<group>"; };
 		70973BC65F89668A25636C57 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
@@ -57,18 +77,27 @@
 		98501143579C0D0A7E081558 /* APIEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIEndpoints.swift; sourceTree = "<group>"; };
 		A08420FE46BA5CA7E4E97DDD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A14E74F059A3FD7B91134DBC /* OvaFlusWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvaFlusWidget.swift; sourceTree = "<group>"; };
+		A1BD9F9F063A1D5EF893F1C6 /* SwiftDataModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftDataModels.swift; sourceTree = "<group>"; };
 		A6D340A39522E7A7EC961E4C /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		A85F758BEB431532AEB12D58 /* DataMigrationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DataMigrationService.swift; sourceTree = "<group>"; };
 		AF094DCB352FDE3C8348D778 /* BudgetDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetDetailView.swift; sourceTree = "<group>"; };
+		AF7903672C77B3723649F5CE /* StockSearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StockSearchView.swift; sourceTree = "<group>"; };
+		B4FBDD7CEBAD02AF2E73AFA3 /* AddGoalView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddGoalView.swift; sourceTree = "<group>"; };
 		B5C6FD2C4A3169BE9ACF2198 /* OvaFlus.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = OvaFlus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BC9C872CA010C70612998E68 /* PlaidLinkView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlaidLinkView.swift; path = PlaidLinkView.swift; sourceTree = "<group>"; };
 		BCC188D0134C5CBB41F1F492 /* BiometricAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuth.swift; sourceTree = "<group>"; };
 		C16ADAFB9271D066F05222ED /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		DC37049203C87EF6080A74B8 /* View+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Helpers.swift"; sourceTree = "<group>"; };
 		DE48203BBE92E43BFDAA882E /* LocalDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDataManager.swift; sourceTree = "<group>"; };
+		E3687783C3B5AEC245451B4F /* NotificationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		E94A7A881036CE547C92F6DE /* AnalyticsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
 		ECEDC4F6150FDB4249748FDC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EDB54632327BE5DE18797A68 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		EE364ECFA3B0CC9B55020E9D /* BankAccountsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BankAccountsView.swift; sourceTree = "<group>"; };
 		F2CFF2DF38F0FBE4291AFF5D /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		F3DBE3F85C7DFB2E296EC343 /* OvaFlusWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = OvaFlusWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		F743D15E1D786E490D65D8C3 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		F7FFCF0698E3BF771BA85490 /* GoalsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
 		F8A68C4B16B4096812D0F852 /* WatchlistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -80,12 +109,33 @@
 				8E0F9E28817796B1FE9D03A4 /* Amplify in Frameworks */,
 				52252CA8AEB964F6BF14AC23 /* AWSCognitoAuthPlugin in Frameworks */,
 				95A86376B6E92B346BCD5AAE /* AWSAPIPlugin in Frameworks */,
+				E9433A6928D30F464F98112A /* LinkKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		015C83E79E291C798D566EBE /* Plaid */ = {
+			isa = PBXGroup;
+			children = (
+				41DD82DED61AC10B5C4D1070 /* PlaidService.swift */,
+				BC9C872CA010C70612998E68 /* PlaidLinkView.swift */,
+			);
+			name = Plaid;
+			path = Plaid;
+			sourceTree = "<group>";
+		};
+		0343E7F5CF5E66D8FE68941F /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				49E79882700FE2CE5CE9555F /* AnalyticsViewModel.swift */,
+				E94A7A881036CE547C92F6DE /* AnalyticsView.swift */,
+			);
+			name = Analytics;
+			path = Analytics;
+			sourceTree = "<group>";
+		};
 		0B3982219EB5B014D3603EE7 /* Dashboard */ = {
 			isa = PBXGroup;
 			children = (
@@ -111,6 +161,8 @@
 				0B3982219EB5B014D3603EE7 /* Dashboard */,
 				12B5E5E555E3587ED685D05A /* Profile */,
 				388345F2B6624F86221AEDAF /* Stocks */,
+				0343E7F5CF5E66D8FE68941F /* Analytics */,
+				C44E51B39829CDF711BBD972 /* Goals */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -122,6 +174,8 @@
 				44959AA4D0A3C3ABC9B38606 /* StockDetailView.swift */,
 				776179F14E050A14A3A84138 /* StocksViewModel.swift */,
 				F8A68C4B16B4096812D0F852 /* WatchlistView.swift */,
+				AF7903672C77B3723649F5CE /* StockSearchView.swift */,
+				15EF1E01A73224D16FE6397B /* AddHoldingView.swift */,
 			);
 			path = Stocks;
 			sourceTree = "<group>";
@@ -165,6 +219,7 @@
 				852D18065BC9989658C71644 /* Portfolio.swift */,
 				EDB54632327BE5DE18797A68 /* Transaction.swift */,
 				F2CFF2DF38F0FBE4291AFF5D /* User.swift */,
+				A1BD9F9F063A1D5EF893F1C6 /* SwiftDataModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -185,6 +240,8 @@
 				A5A1F0F45447186A91F8D1D7 /* Extensions */,
 				3C47EE2B7414421D62738F4A /* Network */,
 				84FA1E7EAB5128345DEF8E20 /* Persistence */,
+				FDB4A4B0206375829C12E8AD /* Notifications */,
+				015C83E79E291C798D566EBE /* Plaid */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -193,6 +250,7 @@
 			isa = PBXGroup;
 			children = (
 				DE48203BBE92E43BFDAA882E /* LocalDataManager.swift */,
+				A85F758BEB431532AEB12D58 /* DataMigrationService.swift */,
 			);
 			path = Persistence;
 			sourceTree = "<group>";
@@ -204,6 +262,8 @@
 				AF094DCB352FDE3C8348D778 /* BudgetDetailView.swift */,
 				646F7AD3F1BE73BFD3FC3F69 /* BudgetListView.swift */,
 				79F130BC58DAF224497DDE15 /* BudgetViewModel.swift */,
+				203A63DF2DFF7DF7F8F0CA7E /* AddBudgetView.swift */,
+				EE364ECFA3B0CC9B55020E9D /* BankAccountsView.swift */,
 			);
 			path = Budget;
 			sourceTree = "<group>";
@@ -226,6 +286,17 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		C44E51B39829CDF711BBD972 /* Goals */ = {
+			isa = PBXGroup;
+			children = (
+				F7FFCF0698E3BF771BA85490 /* GoalsView.swift */,
+				52615C8CCF9C84B8B6561124 /* GoalDetailView.swift */,
+				B4FBDD7CEBAD02AF2E73AFA3 /* AddGoalView.swift */,
+			);
+			name = Goals;
+			path = Goals;
+			sourceTree = "<group>";
+		};
 		DD29B6EBB72836E8D32CE10B /* Auth */ = {
 			isa = PBXGroup;
 			children = (
@@ -233,6 +304,15 @@
 				BCC188D0134C5CBB41F1F492 /* BiometricAuth.swift */,
 			);
 			path = Auth;
+			sourceTree = "<group>";
+		};
+		FDB4A4B0206375829C12E8AD /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				E3687783C3B5AEC245451B4F /* NotificationService.swift */,
+			);
+			name = Notifications;
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -249,8 +329,6 @@
 			dependencies = (
 			);
 			name = OvaFlusWidget;
-			packageProductDependencies = (
-			);
 			productName = OvaFlusWidget;
 			productReference = F3DBE3F85C7DFB2E296EC343 /* OvaFlusWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -272,6 +350,7 @@
 				0B8A1ED5041E24F0121FFC30 /* Amplify */,
 				76F7FA51C4036E3BA231B17C /* AWSCognitoAuthPlugin */,
 				7AC03479512BA0A3EA960822 /* AWSAPIPlugin */,
+				F4601BD9E534EE8E1D2C778D /* LinkKit */,
 			);
 			productName = OvaFlus;
 			productReference = B5C6FD2C4A3169BE9ACF2198 /* OvaFlus.app */;
@@ -307,8 +386,10 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4407D2D9BC66E04D4C7778AC /* XCRemoteSwiftPackageReference "amplify-swift" */,
+				A0299CB6875F10D6C4866562 /* XCRemoteSwiftPackageReference "plaid-link-ios-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
+			productRefGroup = 3CD0FD71D664D53D494FE330 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -367,6 +448,20 @@
 				22E7FAE992F44DAE47ADBC33 /* User.swift in Sources */,
 				35C8431B33F9C902F59A5DCB /* View+Helpers.swift in Sources */,
 				F06007BE217F0BCFECC4DC0E /* WatchlistView.swift in Sources */,
+				0D937BDCD7D463B7E0734619 /* AddBudgetView.swift in Sources */,
+				8689824A29F7B93A5598A508 /* AnalyticsViewModel.swift in Sources */,
+				ED65E084BF6C622D9C87BD77 /* AnalyticsView.swift in Sources */,
+				F2AF26BF5662665DFC40E2EA /* GoalsView.swift in Sources */,
+				0D06F74D332FE6C8D4DD189F /* GoalDetailView.swift in Sources */,
+				092C02C5984CFFEDCD52D510 /* AddGoalView.swift in Sources */,
+				6D032B84165214F614BDD81A /* StockSearchView.swift in Sources */,
+				0A5F97C31ACE7134F3ABD63A /* AddHoldingView.swift in Sources */,
+				B9C70BD2BFDD2180E1E223A6 /* NotificationService.swift in Sources */,
+				B85C87BD29CC6B5853F29730 /* SwiftDataModels.swift in Sources */,
+				6EDD6AE37493C0441BF8CE92 /* DataMigrationService.swift in Sources */,
+				0CE43DF2434F7A0BCF088C26 /* PlaidService.swift in Sources */,
+				440DC5F86287B59CE980401C /* PlaidLinkView.swift in Sources */,
+				09DCB5671C3A58B6DE1BBE20 /* BankAccountsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -605,6 +700,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		A0299CB6875F10D6C4866562 /* XCRemoteSwiftPackageReference "plaid-link-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/plaid/plaid-link-ios-spm";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -622,6 +725,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4407D2D9BC66E04D4C7778AC /* XCRemoteSwiftPackageReference "amplify-swift" */;
 			productName = AWSAPIPlugin;
+		};
+		F4601BD9E534EE8E1D2C778D /* LinkKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A0299CB6875F10D6C4866562 /* XCRemoteSwiftPackageReference "plaid-link-ios-spm" */;
+			productName = LinkKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

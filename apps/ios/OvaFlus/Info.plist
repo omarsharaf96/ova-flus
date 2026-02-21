@@ -29,6 +29,8 @@
         <key>UIApplicationSupportsMultipleScenes</key>
         <true/>
     </dict>
+    <key>NSUserNotificationsUsageDescription</key>
+    <string>Flus sends notifications for budget alerts, goal milestones, and weekly financial summaries.</string>
     <key>UILaunchScreen</key>
     <dict/>
     <key>UISupportedInterfaceOrientations</key>

@@ -1,11 +1,13 @@
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     @EnvironmentObject var authManager: AuthManager
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedTab: Tab = .dashboard
     @State private var showAddTransaction = false
 
-    enum Tab { case dashboard, budget, stocks, profile }
+    enum Tab { case dashboard, budget, analytics, stocks, profile }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -16,6 +18,9 @@ struct ContentView: View {
                 BudgetListView()
                     .tabItem { Label("Budget", systemImage: "dollarsign.circle.fill") }
                     .tag(Tab.budget)
+                AnalyticsView()
+                    .tabItem { Label("Analytics", systemImage: "chart.xyaxis.line") }
+                    .tag(Tab.analytics)
                 PortfolioView()
                     .tabItem { Label("Stocks", systemImage: "chart.line.uptrend.xyaxis") }
                     .tag(Tab.stocks)
@@ -27,6 +32,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showAddTransaction) {
             AddTransactionView()
+        }
+        .onAppear {
+            DataMigrationService.shared.migrateIfNeeded(modelContext: modelContext)
         }
     }
 }

@@ -38,9 +38,23 @@ enum APIEndpoint {
     case removeFromWatchlist(symbol: String)
     case getStockNews(symbol: String)
 
+    // Stock Search
+    case searchStocks(query: String)
+
+    // Portfolio Holdings
+    case addHolding(symbol: String, shares: Double, averageCost: Double, purchaseDate: Date)
+    case removeHolding(id: String)
+
     // User
     case getProfile
     case updateProfile(User)
+
+    // Plaid
+    case plaidCreateLinkToken
+    case plaidExchangeToken(publicToken: String, institutionId: String, institutionName: String, accounts: [[String: String]])
+    case plaidGetAccounts
+    case plaidSyncTransactions
+    case plaidUnlinkAccount(itemId: String)
 
     var path: String {
         switch self {
@@ -59,18 +73,28 @@ enum APIEndpoint {
         case .getWatchlist: return "/watchlist"
         case .addToWatchlist, .removeFromWatchlist: return "/watchlist"
         case .getStockNews(let symbol): return "/stocks/\(symbol)/news"
+        case .searchStocks(let query): return "/stocks/search?q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query)"
+        case .addHolding: return "/portfolio/holdings"
+        case .removeHolding(let id): return "/portfolio/holdings/\(id)"
         case .getProfile, .updateProfile: return "/profile"
+        case .plaidCreateLinkToken: return "/plaid/link-token"
+        case .plaidExchangeToken: return "/plaid/exchange-token"
+        case .plaidGetAccounts: return "/plaid/accounts"
+        case .plaidSyncTransactions: return "/plaid/sync"
+        case .plaidUnlinkAccount(let itemId): return "/plaid/accounts/\(itemId)"
         }
     }
 
     var method: String {
         switch self {
-        case .signIn, .signUp, .refreshToken, .createBudget, .createTransaction, .addToWatchlist:
+        case .signIn, .signUp, .refreshToken, .createBudget, .createTransaction, .addToWatchlist, .addHolding:
             return "POST"
         case .updateBudget, .updateProfile:
             return "PUT"
-        case .deleteBudget, .deleteTransaction, .removeFromWatchlist:
+        case .deleteBudget, .deleteTransaction, .removeFromWatchlist, .removeHolding, .plaidUnlinkAccount:
             return "DELETE"
+        case .plaidCreateLinkToken, .plaidExchangeToken, .plaidSyncTransactions:
+            return "POST"
         default:
             return "GET"
         }
@@ -92,6 +116,21 @@ enum APIEndpoint {
             return AnyEncodable(["symbol": symbol])
         case .updateProfile(let user):
             return AnyEncodable(user)
+        case .addHolding(let symbol, let shares, let averageCost, let purchaseDate):
+            let formatter = ISO8601DateFormatter()
+            return AnyEncodable([
+                "symbol": AnyEncodable(symbol),
+                "shares": AnyEncodable(shares),
+                "averageCost": AnyEncodable(averageCost),
+                "purchaseDate": AnyEncodable(formatter.string(from: purchaseDate))
+            ])
+        case .plaidExchangeToken(let publicToken, let institutionId, let institutionName, let accounts):
+            return AnyEncodable([
+                "publicToken": AnyEncodable(publicToken),
+                "institutionId": AnyEncodable(institutionId),
+                "institutionName": AnyEncodable(institutionName),
+                "accounts": AnyEncodable(accounts)
+            ])
         default:
             return nil
         }

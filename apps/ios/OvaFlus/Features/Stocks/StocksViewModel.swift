@@ -1,5 +1,7 @@
 import Foundation
 
+private struct EmptyResponse: Codable {}
+
 struct ChartDataPoint {
     let date: Date
     let value: Double
@@ -19,6 +21,8 @@ class StocksViewModel: ObservableObject {
     @Published var selectedQuote: StockQuote?
     @Published var chartData: [ChartDataPoint] = []
     @Published var news: [NewsArticle] = []
+    @Published var searchResults: [StockQuote] = []
+    @Published var isSearching: Bool = false
     @Published var isLoading = false
     @Published var errorMessage: String?
 
@@ -60,6 +64,30 @@ class StocksViewModel: ObservableObject {
             errorMessage = "Failed to load stock details"
         }
         isLoading = false
+    }
+
+    func searchStocks(query: String) async {
+        guard query.count >= 2 else {
+            searchResults = []
+            return
+        }
+        isSearching = true
+        defer { isSearching = false }
+        do {
+            let results: [StockQuote] = try await apiClient.request(.searchStocks(query: query))
+            searchResults = results
+        } catch {
+            searchResults = []
+        }
+    }
+
+    func addToWatchlist(symbol: String) async {
+        do {
+            let _: StockQuote = try await apiClient.request(.addToWatchlist(symbol: symbol))
+            await fetchWatchlist()
+        } catch {
+            // silently fail - SwiftData already has the item
+        }
     }
 
     func removeFromWatchlist(_ symbol: String) async {

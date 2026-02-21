@@ -1,8 +1,12 @@
 import SwiftUI
+import SwiftData
 
 struct WatchlistView: View {
     @StateObject private var viewModel = StocksViewModel()
+    @Query(sort: \WatchlistItemModel.addedAt, order: .reverse) var watchlistItems: [WatchlistItemModel]
+    @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
+    @State private var showSearch = false
 
     var body: some View {
         List {
@@ -45,6 +49,24 @@ struct WatchlistView: View {
         }
         .navigationTitle("Watchlist")
         .searchable(text: $searchText, prompt: "Search stocks")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showSearch = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+        .sheet(isPresented: $showSearch) {
+            StockSearchView { quote in
+                let item = WatchlistItemModel(symbol: quote.symbol)
+                modelContext.insert(item)
+                Task {
+                    await viewModel.addToWatchlist(symbol: quote.symbol)
+                }
+            }
+        }
         .refreshable {
             await viewModel.fetchWatchlist()
         }

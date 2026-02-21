@@ -1,12 +1,15 @@
 import SwiftUI
+import SwiftData
 
 struct AddTransactionView: View {
+    var budget: BudgetModel? = nil
+
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = BudgetViewModel()
+    @Environment(\.modelContext) private var modelContext
 
     @State private var amount: String = ""
     @State private var selectedCategory: String = "Food & Dining"
-    @State private var transactionType: TransactionType = .expense
+    @State private var transactionType: String = "expense"
     @State private var date = Date()
     @State private var merchantName: String = ""
     @State private var notes: String = ""
@@ -24,8 +27,8 @@ struct AddTransactionView: View {
                 // Transaction type
                 Section {
                     Picker("Type", selection: $transactionType) {
-                        Text("Expense").tag(TransactionType.expense)
-                        Text("Income").tag(TransactionType.income)
+                        Text("Expense").tag("expense")
+                        Text("Income").tag("income")
                     }
                     .pickerStyle(.segmented)
                 }
@@ -61,7 +64,9 @@ struct AddTransactionView: View {
                 Section("Receipt") {
                     Button {
                         showCamera = true
+                        #if canImport(UIKit)
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        #endif
                     } label: {
                         Label("Scan Receipt", systemImage: "camera.fill")
                     }
@@ -77,10 +82,7 @@ struct AddTransactionView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        UINotificationFeedbackGenerator().notificationOccurred(.success)
-                        Task {
-                            await saveTransaction()
-                        }
+                        saveTransaction()
                     }
                     .disabled(amount.isEmpty)
                 }
@@ -91,22 +93,39 @@ struct AddTransactionView: View {
         }
     }
 
-    private func saveTransaction() async {
-        guard let amountValue = Double(amount) else { return }
-        let transaction = Transaction(
-            id: UUID().uuidString,
+    private func saveTransaction() {
+        guard let amountValue = Double(amount), amountValue > 0 else { return }
+
+        let transaction = TransactionModel(
             amount: amountValue,
             type: transactionType,
             category: selectedCategory,
-            date: date,
             merchantName: merchantName.isEmpty ? nil : merchantName,
-            notes: notes.isEmpty ? nil : notes
+            notes: notes.isEmpty ? nil : notes,
+            date: date,
+            budgetId: budget?.id,
+            budget: budget
         )
-        await viewModel.addTransaction(transaction)
+        modelContext.insert(transaction)
+
+        if transactionType == "expense", let budget = budget {
+            budget.spent += amountValue
+            budget.updatedAt = Date()
+
+            let threshold = UserDefaults.standard.double(forKey: "budgetAlertThreshold") > 0
+                ? UserDefaults.standard.double(forKey: "budgetAlertThreshold")
+                : 0.8
+            NotificationService.shared.checkBudgetAlert(budget: budget, threshold: threshold)
+        }
+
+        #if canImport(UIKit)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        #endif
         dismiss()
     }
 }
 
 #Preview {
     AddTransactionView()
+        .modelContainer(for: TransactionModel.self, inMemory: true)
 }

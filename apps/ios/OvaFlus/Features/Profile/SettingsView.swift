@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 struct SettingsView: View {
     @EnvironmentObject var authManager: AuthManager
@@ -6,6 +7,7 @@ struct SettingsView: View {
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @AppStorage("budgetAlerts") private var budgetAlerts = true
     @AppStorage("stockAlerts") private var stockAlerts = true
+    @AppStorage("budgetAlertThreshold") private var budgetAlertThreshold: Double = 0.8
     @AppStorage("biometricEnabled") private var biometricEnabled = false
     @State private var showExportConfirmation = false
 
@@ -21,11 +23,32 @@ struct SettingsView: View {
             Section("Notifications") {
                 Toggle("Enable Notifications", isOn: $notificationsEnabled)
                     .tint(.blue)
+                    .onChange(of: notificationsEnabled) { _, newValue in
+                        if newValue {
+                            Task { _ = await NotificationService.shared.requestAuthorization() }
+                            NotificationService.shared.scheduleWeeklySummary()
+                        } else {
+                            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["weekly-summary"])
+                        }
+                    }
                 if notificationsEnabled {
                     Toggle("Budget Alerts", isOn: $budgetAlerts)
                         .tint(.blue)
                     Toggle("Stock Price Alerts", isOn: $stockAlerts)
                         .tint(.blue)
+                }
+            }
+
+            if notificationsEnabled {
+                Section("Budget Alerts") {
+                    HStack {
+                        Text("Alert Threshold")
+                        Spacer()
+                        Text("\(Int(budgetAlertThreshold * 100))%")
+                            .foregroundColor(.secondary)
+                    }
+                    Slider(value: $budgetAlertThreshold, in: 0.5...1.0, step: 0.1)
+                        .tint(.accentColor)
                 }
             }
 

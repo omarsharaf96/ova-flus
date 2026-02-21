@@ -1,8 +1,20 @@
 import SwiftUI
+import SwiftData
 
 struct BudgetListView: View {
-    @StateObject private var viewModel = BudgetViewModel()
+    @Query(sort: \BudgetModel.createdAt, order: .reverse) var budgets: [BudgetModel]
+    @Environment(\.modelContext) private var modelContext
     @State private var showAddBudget = false
+    @State private var editingBudget: BudgetModel? = nil
+    @State private var showBankAccounts = false
+
+    private var totalBudget: Double {
+        budgets.reduce(0) { $0 + $1.amount }
+    }
+
+    private var totalSpent: Double {
+        budgets.reduce(0) { $0 + $1.spent }
+    }
 
     var body: some View {
         NavigationStack {
@@ -15,29 +27,45 @@ struct BudgetListView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Text("\(viewModel.totalSpent, format: .currency(code: "USD")) / \(viewModel.totalBudget, format: .currency(code: "USD"))")
+                            Text("\(totalSpent, format: .currency(code: "USD")) / \(totalBudget, format: .currency(code: "USD"))")
                                 .font(.subheadline.bold())
                         }
-                        ProgressView(value: viewModel.totalBudget > 0 ? viewModel.totalSpent / viewModel.totalBudget : 0)
-                            .tint(viewModel.totalSpent > viewModel.totalBudget ? .red : .blue)
+                        ProgressView(value: totalBudget > 0 ? totalSpent / totalBudget : 0)
+                            .tint(totalSpent > totalBudget ? .red : .blue)
                     }
                     .padding(.vertical, 4)
                 }
 
                 // Category breakdown
                 Section("Categories") {
-                    ForEach(viewModel.budgets) { budget in
+                    ForEach(budgets) { budget in
                         NavigationLink {
                             BudgetDetailView(budget: budget)
                         } label: {
                             BudgetRowView(budget: budget)
                         }
+                        .swipeActions(edge: .leading) {
+                            Button {
+                                editingBudget = budget
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            .tint(.blue)
+                        }
                     }
+                    .onDelete(perform: deleteBudgets)
                 }
             }
             .navigationTitle("Budget")
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        showBankAccounts = true
+                    } label: {
+                        Image(systemName: "building.columns")
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showAddBudget = true
                     } label: {
@@ -46,20 +74,26 @@ struct BudgetListView: View {
                 }
             }
             .sheet(isPresented: $showAddBudget) {
-                AddTransactionView()
+                AddBudgetView()
             }
-            .refreshable {
-                await viewModel.fetchBudgets()
+            .sheet(item: $editingBudget) { budget in
+                AddBudgetView(existingBudget: budget)
             }
-            .task {
-                await viewModel.fetchBudgets()
+            .sheet(isPresented: $showBankAccounts) {
+                BankAccountsView()
             }
+        }
+    }
+
+    private func deleteBudgets(at offsets: IndexSet) {
+        for offset in offsets {
+            modelContext.delete(budgets[offset])
         }
     }
 }
 
 struct BudgetRowView: View {
-    let budget: Budget
+    let budget: BudgetModel
 
     private var progress: Double {
         guard budget.amount > 0 else { return 0 }
@@ -69,10 +103,10 @@ struct BudgetRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Label(budget.category, systemImage: budget.categoryIcon)
+                Text("\(budget.categoryIcon) \(budget.category)")
                     .font(.subheadline.bold())
                 Spacer()
-                Text(budget.amount - budget.spent, format: .currency(code: "USD"))
+                Text(budget.remaining, format: .currency(code: "USD"))
                     .font(.subheadline)
                     .foregroundStyle(budget.spent > budget.amount ? .red : .green)
             }
@@ -94,4 +128,5 @@ struct BudgetRowView: View {
 
 #Preview {
     BudgetListView()
+        .modelContainer(for: BudgetModel.self, inMemory: true)
 }

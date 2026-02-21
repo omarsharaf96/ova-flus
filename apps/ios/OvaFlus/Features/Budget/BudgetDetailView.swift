@@ -1,9 +1,21 @@
 import SwiftUI
+import SwiftData
 import Charts
 
 struct BudgetDetailView: View {
-    let budget: Budget
-    @StateObject private var viewModel = BudgetViewModel()
+    let budget: BudgetModel
+    @State private var filterType: String = "All"
+    @State private var searchText: String = ""
+    @State private var showAddTransaction = false
+
+    private let filterOptions = ["All", "Expense", "Income"]
+
+    var filteredTransactions: [TransactionModel] {
+        budget.transactions
+            .filter { filterType == "All" || $0.type == filterType.lowercased() }
+            .filter { searchText.isEmpty || ($0.merchantName ?? "").localizedCaseInsensitiveContains(searchText) || $0.category.localizedCaseInsensitiveContains(searchText) }
+            .sorted { $0.date > $1.date }
+    }
 
     var body: some View {
         ScrollView {
@@ -14,7 +26,7 @@ struct BudgetDetailView: View {
                         Circle()
                             .stroke(Color.gray.opacity(0.2), lineWidth: 12)
                         Circle()
-                            .trim(from: 0, to: min(budget.spent / budget.amount, 1.0))
+                            .trim(from: 0, to: budget.progress)
                             .stroke(
                                 budget.spent > budget.amount ? Color.red : Color.blue,
                                 style: StrokeStyle(lineWidth: 12, lineCap: .round)
@@ -44,7 +56,7 @@ struct BudgetDetailView: View {
                             Text("Remaining")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            Text(max(budget.amount - budget.spent, 0), format: .currency(code: "USD"))
+                            Text(budget.remaining, format: .currency(code: "USD"))
                                 .font(.subheadline.bold())
                                 .foregroundStyle(.green)
                         }
@@ -61,27 +73,44 @@ struct BudgetDetailView: View {
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
+                // Filter
+                Picker("Filter", selection: $filterType) {
+                    ForEach(filterOptions, id: \.self) { option in
+                        Text(option).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+
                 // Transactions list
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Transactions")
                         .font(.headline)
 
-                    ForEach(viewModel.transactions) { transaction in
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(transaction.merchantName ?? transaction.category)
+                    if filteredTransactions.isEmpty {
+                        Text("No transactions yet")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.vertical, 20)
+                    } else {
+                        ForEach(filteredTransactions, id: \.id) { transaction in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(transaction.merchantName ?? transaction.category)
+                                        .font(.subheadline.bold())
+                                    Text(transaction.date, style: .date)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Text(transaction.amount, format: .currency(code: "USD"))
                                     .font(.subheadline.bold())
-                                Text(transaction.date, style: .date)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(transaction.type == "expense" ? .red : .green)
                             }
-                            Spacer()
-                            Text(transaction.amount, format: .currency(code: "USD"))
-                                .font(.subheadline.bold())
-                                .foregroundStyle(transaction.type == .expense ? .red : .green)
+                            .padding(.vertical, 4)
+                            Divider()
                         }
-                        .padding(.vertical, 4)
-                        Divider()
                     }
                 }
                 .padding()
@@ -91,8 +120,18 @@ struct BudgetDetailView: View {
             .padding()
         }
         .navigationTitle(budget.category)
-        .task {
-            await viewModel.fetchTransactions(for: budget.id)
+        .searchable(text: $searchText)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showAddTransaction = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+        .sheet(isPresented: $showAddTransaction) {
+            AddTransactionView(budget: budget)
         }
     }
 }

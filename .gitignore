@@ -110,6 +110,26 @@ ehthumbs.db
 Thumbs.db
 Desktop.ini
 
+# Rust
+target/
+Cargo.lock
+
+# CDK
+cdk.out/
+infrastructure/cdk.out/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+.terraform.lock.hcl
+
+# Environment files (never commit real credentials)
+.env
+.env.*
+!.env.dev.example
+
 # Temporary files
 *.swp
 *.swo

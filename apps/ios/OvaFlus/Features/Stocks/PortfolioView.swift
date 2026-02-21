@@ -1,9 +1,12 @@
 import SwiftUI
 import Charts
+import SwiftData
 
 struct PortfolioView: View {
     @StateObject private var viewModel = StocksViewModel()
+    @Query var holdings: [HoldingModel]
     @State private var selectedTimeRange: TimeRange = .oneMonth
+    @State private var showAddHolding = false
 
     enum TimeRange: String, CaseIterable {
         case oneDay = "1D"
@@ -73,6 +76,27 @@ struct PortfolioView: View {
                     .background(.ultraThinMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
+                    // Allocation chart
+                    if !holdings.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Allocation")
+                                .font(.headline)
+
+                            Chart(holdings, id: \.symbol) { holding in
+                                SectorMark(
+                                    angle: .value("Value", holding.shares * holding.averageCost),
+                                    innerRadius: .ratio(0.5)
+                                )
+                                .foregroundStyle(by: .value("Symbol", holding.symbol))
+                            }
+                            .frame(height: 200)
+                            .chartLegend(position: .trailing)
+                        }
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+
                     // Holdings list
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
@@ -119,6 +143,18 @@ struct PortfolioView: View {
                 .padding()
             }
             .navigationTitle("Stocks")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showAddHolding = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddHolding) {
+                AddHoldingView()
+            }
             .refreshable {
                 await viewModel.fetchPortfolio()
             }

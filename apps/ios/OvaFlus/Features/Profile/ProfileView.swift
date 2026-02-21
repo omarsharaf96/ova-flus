@@ -42,6 +42,9 @@ struct ProfileView: View {
 
                 // Quick actions
                 Section("Quick Actions") {
+                    NavigationLink(destination: GoalsView()) {
+                        Label("Financial Goals", systemImage: "target")
+                    }
                     NavigationLink {
                         Text("Export Data View")
                     } label: {
