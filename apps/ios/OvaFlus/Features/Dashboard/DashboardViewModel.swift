@@ -24,6 +24,34 @@ class DashboardViewModel: ObservableObject {
 
     private let apiClient = APIClient.shared
 
+    // MARK: - Computed financial metrics
+
+    var monthSpend: Double {
+        let comps = Calendar.current.dateComponents([.year, .month], from: Date())
+        return recentTransactions
+            .filter {
+                $0.type == .expense &&
+                Calendar.current.dateComponents([.year, .month], from: $0.date) == comps
+            }
+            .reduce(0) { $0 + $1.amount }
+    }
+
+    var monthIncome: Double {
+        let comps = Calendar.current.dateComponents([.year, .month], from: Date())
+        return recentTransactions
+            .filter {
+                $0.type == .income &&
+                Calendar.current.dateComponents([.year, .month], from: $0.date) == comps
+            }
+            .reduce(0) { $0 + $1.amount }
+    }
+
+    /// Net cash this month (income minus spend)
+    var cash: Double { monthIncome - monthSpend }
+
+    /// Portfolio value + net cash
+    var netWorth: Double { portfolioValue + cash }
+
     func fetchDashboardData() async {
         isLoading = true
         errorMessage = nil

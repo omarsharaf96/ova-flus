@@ -24,17 +24,25 @@ struct OvaFlusApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if authManager.isAuthenticated {
-                ContentView()
-                    .environmentObject(authManager)
-                    .modelContainer(modelContainer)
-                    .task {
-                        _ = await NotificationService.shared.requestAuthorization()
-                        NotificationService.shared.scheduleWeeklySummary()
-                    }
-            } else {
-                LoginView()
-                    .environmentObject(authManager)
+            Group {
+                if authManager.isAuthenticated {
+                    ContentView()
+                        .environmentObject(authManager)
+                        .modelContainer(modelContainer)
+                        .task {
+                            _ = await NotificationService.shared.requestAuthorization()
+                            NotificationService.shared.scheduleWeeklySummary()
+                        }
+                } else {
+                    LoginView()
+                        .environmentObject(authManager)
+                }
+            }
+            .onOpenURL { url in
+                // Handle Google Sign In redirect URL
+                // Uncomment after adding GoogleSignIn SPM:
+                // GIDSignIn.sharedInstance.handle(url)
+                _ = url
             }
         }
     }

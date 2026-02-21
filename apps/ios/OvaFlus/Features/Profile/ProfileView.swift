@@ -10,34 +10,30 @@ struct ProfileView: View {
                 // User info section
                 Section {
                     HStack(spacing: 16) {
-                        Image(systemName: "person.circle.fill")
-                            .font(.system(size: 56))
-                            .foregroundStyle(.blue)
+                        ZStack {
+                            Circle()
+                                .fill(.blue.opacity(0.15))
+                                .frame(width: 64, height: 64)
+                            Text(authManager.currentUser?.name.prefix(1).uppercased() ?? "?")
+                                .font(.title.bold())
+                                .foregroundStyle(.blue)
+                        }
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(authManager.currentUser?.name ?? "User")
-                                .font(.title3.bold())
+                            if let name = authManager.currentUser?.name, !name.isEmpty {
+                                Text(name)
+                                    .font(.title3.bold())
+                            } else {
+                                Text("Loading...")
+                                    .font(.title3.bold())
+                                    .foregroundStyle(.secondary)
+                                    .redacted(reason: .placeholder)
+                            }
                             Text(authManager.currentUser?.email ?? "")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
                     .padding(.vertical, 8)
-                }
-
-                // Subscription tier
-                Section("Subscription") {
-                    HStack {
-                        Label("Plan", systemImage: "crown.fill")
-                        Spacer()
-                        Text(authManager.currentUser?.subscriptionTier.rawValue.capitalized ?? "Free")
-                            .foregroundStyle(.secondary)
-                    }
-                    NavigationLink {
-                        Text("Upgrade Plan")
-                    } label: {
-                        Label("Upgrade to Premium", systemImage: "star.fill")
-                            .foregroundStyle(.orange)
-                    }
                 }
 
                 // Quick actions

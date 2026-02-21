@@ -1,0 +1,28 @@
+{
+  "auth": {
+    "plugins": {
+      "awsCognitoAuthPlugin": {
+        "CognitoUserPool": {
+          "Default": {
+            "PoolId": "REPLACE_WITH_USER_POOL_ID",
+            "AppClientId": "REPLACE_WITH_APP_CLIENT_ID",
+            "Region": "us-east-1"
+          }
+        },
+        "Auth": {
+          "Default": {
+            "authenticationFlowType": "USER_SRP_AUTH",
+            "usernameAttributes": ["EMAIL"],
+            "signupAttributes": ["EMAIL", "NAME"],
+            "passwordProtectionSettings": {
+              "passwordPolicyMinLength": 8,
+              "passwordPolicyCharacters": ["REQUIRES_UPPERCASE", "REQUIRES_NUMBERS"]
+            },
+            "mfaConfiguration": "OFF",
+            "verificationMechanisms": ["EMAIL"]
+          }
+        }
+      }
+    }
+  }
+}

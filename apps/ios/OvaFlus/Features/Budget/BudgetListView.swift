@@ -1,12 +1,18 @@
 import SwiftUI
 import SwiftData
 
+private enum BudgetTab: String, CaseIterable {
+    case budgets   = "Budgets"
+    case chart     = "Chart"
+    case recurring = "Recurring"
+}
+
 struct BudgetListView: View {
     @Query(sort: \BudgetModel.createdAt, order: .reverse) var budgets: [BudgetModel]
     @Environment(\.modelContext) private var modelContext
     @State private var showAddBudget = false
     @State private var editingBudget: BudgetModel? = nil
-    @State private var showBankAccounts = false
+    @State private var selectedTab: BudgetTab = .budgets
 
     private var totalBudget: Double {
         budgets.reduce(0) { $0 + $1.amount }
@@ -18,58 +24,36 @@ struct BudgetListView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                // Overall progress section
-                Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text("Total Budget")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text("\(totalSpent, format: .currency(code: "USD")) / \(totalBudget, format: .currency(code: "USD"))")
-                                .font(.subheadline.bold())
-                        }
-                        ProgressView(value: totalBudget > 0 ? totalSpent / totalBudget : 0)
-                            .tint(totalSpent > totalBudget ? .red : .blue)
+            VStack(spacing: 0) {
+                // Segmented picker
+                Picker("", selection: $selectedTab) {
+                    ForEach(BudgetTab.allCases, id: \.self) { tab in
+                        Text(tab.rawValue).tag(tab)
                     }
-                    .padding(.vertical, 4)
                 }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
 
-                // Category breakdown
-                Section("Categories") {
-                    ForEach(budgets) { budget in
-                        NavigationLink {
-                            BudgetDetailView(budget: budget)
-                        } label: {
-                            BudgetRowView(budget: budget)
-                        }
-                        .swipeActions(edge: .leading) {
-                            Button {
-                                editingBudget = budget
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            .tint(.blue)
-                        }
-                    }
-                    .onDelete(perform: deleteBudgets)
+                // Content
+                switch selectedTab {
+                case .budgets:
+                    budgetsList
+                case .chart:
+                    BudgetChartView()
+                case .recurring:
+                    RecurringPaymentsView()
                 }
             }
             .navigationTitle("Budget")
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        showBankAccounts = true
-                    } label: {
-                        Image(systemName: "building.columns")
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showAddBudget = true
-                    } label: {
-                        Image(systemName: "plus")
+                if selectedTab == .budgets {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            showAddBudget = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
                     }
                 }
             }
@@ -79,8 +63,46 @@ struct BudgetListView: View {
             .sheet(item: $editingBudget) { budget in
                 AddBudgetView(existingBudget: budget)
             }
-            .sheet(isPresented: $showBankAccounts) {
-                BankAccountsView()
+        }
+    }
+
+    private var budgetsList: some View {
+        List {
+            // Overall progress section
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Total Budget")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("\(totalSpent, format: .currency(code: "USD")) / \(totalBudget, format: .currency(code: "USD"))")
+                            .font(.subheadline.bold())
+                    }
+                    ProgressView(value: totalBudget > 0 ? totalSpent / totalBudget : 0)
+                        .tint(totalSpent > totalBudget ? .red : .blue)
+                }
+                .padding(.vertical, 4)
+            }
+
+            // Category breakdown
+            Section("Categories") {
+                ForEach(budgets) { budget in
+                    NavigationLink {
+                        BudgetDetailView(budget: budget)
+                    } label: {
+                        BudgetRowView(budget: budget)
+                    }
+                    .swipeActions(edge: .leading) {
+                        Button {
+                            editingBudget = budget
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        .tint(.blue)
+                    }
+                }
+                .onDelete(perform: deleteBudgets)
             }
         }
     }

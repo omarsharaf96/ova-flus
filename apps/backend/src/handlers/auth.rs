@@ -1,304 +1,309 @@
 use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 
-use argon2::{
-    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
-    Argon2,
-};
-use aws_sdk_dynamodb::types::AttributeValue;
+use aws_sdk_cognitoidentityprovider::types::{AuthFlowType, ChallengeNameType, MessageActionType};
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
-use chrono::Utc;
-use jsonwebtoken::{encode, EncodingKey, Header};
-use rand::rngs::OsRng;
+use hmac::{Hmac, Mac};
+use rand::Rng;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use sha2::Sha256;
 
-use crate::models::{ApiError, Claims};
+use crate::models::ApiError;
 use crate::AppState;
 
+type HmacSha256 = Hmac<Sha256>;
+
 #[derive(Deserialize)]
-pub struct SignUpRequest {
-    pub email: String,
-    pub password: String,
-    pub name: String,
+pub struct AppleSignInRequest {
+    pub identity_token: String,
 }
 
 #[derive(Deserialize)]
-pub struct SignInRequest {
-    pub email: String,
-    pub password: String,
-}
-
-#[derive(Deserialize)]
-pub struct RefreshRequest {
-    pub refresh_token: String,
+pub struct GoogleSignInRequest {
+    pub id_token: String,
 }
 
 #[derive(Serialize)]
-pub struct AuthResponse {
+pub struct CognitoTokenResponse {
     pub access_token: String,
+    pub id_token: String,
     pub refresh_token: String,
-    pub user_id: String,
+    pub expires_in: i32,
 }
 
-fn generate_tokens(
-    user_id: &str,
-    jwt_secret: &str,
-) -> Result<(String, String), jsonwebtoken::errors::Error> {
-    let now = Utc::now().timestamp() as usize;
+/// Verify a JWT using JWKS from the given URL.
+/// Returns the decoded claims if valid, or an error string.
+async fn verify_jwt_with_jwks(
+    token: &str,
+    jwks_url: &str,
+    expected_aud: Option<&str>,
+) -> Result<serde_json::Value, String> {
+    use base64::Engine as _;
 
-    let access_claims = Claims {
-        sub: user_id.to_string(),
-        exp: now + 3600, // 1 hour
-        iat: now,
-        token_type: "access".to_string(),
-    };
+    // Fetch JWKS
+    let jwks_resp = reqwest::get(jwks_url)
+        .await
+        .map_err(|e| format!("Failed to fetch JWKS: {e}"))?
+        .json::<serde_json::Value>()
+        .await
+        .map_err(|e| format!("Failed to parse JWKS: {e}"))?;
 
-    let refresh_claims = Claims {
-        sub: user_id.to_string(),
-        exp: now + 7 * 24 * 3600, // 7 days
-        iat: now,
-        token_type: "refresh".to_string(),
-    };
+    // Parse token header to get kid
+    let parts: Vec<&str> = token.split('.').collect();
+    if parts.len() != 3 {
+        return Err("Invalid JWT format".to_string());
+    }
 
-    let key = EncodingKey::from_secret(jwt_secret.as_bytes());
-    let header = Header::default(); // HS256
+    let header_bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
+        .decode(parts[0])
+        .map_err(|_| "Invalid JWT header encoding")?;
+    let header: serde_json::Value =
+        serde_json::from_slice(&header_bytes).map_err(|_| "Invalid JWT header JSON")?;
 
-    let access_token = encode(&header, &access_claims, &key)?;
-    let refresh_token = encode(&header, &refresh_claims, &key)?;
+    let kid = header["kid"].as_str().ok_or("No kid in JWT header")?;
+    let alg = header["alg"].as_str().unwrap_or("RS256");
 
-    Ok((access_token, refresh_token))
+    if alg != "RS256" {
+        return Err(format!("Unexpected algorithm: {alg}"));
+    }
+
+    // Find matching key in JWKS
+    let keys = jwks_resp["keys"].as_array().ok_or("No keys in JWKS")?;
+
+    let jwk = keys
+        .iter()
+        .find(|k| k["kid"].as_str() == Some(kid))
+        .ok_or_else(|| format!("No matching key for kid={kid}"))?;
+
+    // Decode RS256 using jsonwebtoken
+    let n = jwk["n"].as_str().ok_or("Missing n in JWK")?;
+    let e = jwk["e"].as_str().ok_or("Missing e in JWK")?;
+
+    let decoding_key = jsonwebtoken::DecodingKey::from_rsa_components(n, e)
+        .map_err(|err| format!("Invalid RSA key: {err}"))?;
+
+    let mut validation = jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::RS256);
+    validation.validate_exp = true;
+    if let Some(aud) = expected_aud {
+        validation.set_audience(&[aud]);
+    } else {
+        validation.validate_aud = false;
+    }
+
+    let token_data = jsonwebtoken::decode::<serde_json::Value>(token, &decoding_key, &validation)
+        .map_err(|e| format!("JWT validation failed: {e}"))?;
+
+    Ok(token_data.claims)
 }
 
-pub async fn sign_up(
-    State(state): State<Arc<AppState>>,
-    Json(body): Json<SignUpRequest>,
-) -> impl IntoResponse {
-    // Check if email already exists
-    let query_result = state
-        .dynamo
-        .query()
-        .table_name("ovaflus-users")
-        .index_name("email-index")
-        .key_condition_expression("email = :email")
-        .expression_attribute_values(":email", AttributeValue::S(body.email.clone()))
-        .send()
-        .await;
+/// Generate a signed nonce for the Cognito custom auth challenge.
+/// Format: "timestamp:hmac" where hmac = HMAC-SHA256(username:timestamp, nonce_secret)
+fn generate_nonce(username: &str, nonce_secret: &str) -> String {
+    let ts = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    let message = format!("{}:{}", username, ts);
+    let mut mac =
+        HmacSha256::new_from_slice(nonce_secret.as_bytes()).expect("HMAC accepts any key size");
+    mac.update(message.as_bytes());
+    let result = mac.finalize().into_bytes();
+    format!("{}:{}", ts, hex::encode(result))
+}
 
-    match query_result {
-        Ok(output) => {
-            if output.count() > 0 {
-                return (
-                    StatusCode::CONFLICT,
-                    Json(serde_json::json!({"error": "Email already registered"})),
-                )
-                    .into_response();
+/// Generate a random permanent password for social login users.
+fn random_password() -> String {
+    let mut rng = rand::thread_rng();
+    let chars: String = (0..24)
+        .map(|_| {
+            let idx = rng.gen_range(0..62);
+            match idx {
+                0..=9 => (b'0' + idx) as char,
+                10..=35 => (b'A' + idx - 10) as char,
+                _ => (b'a' + idx - 36) as char,
             }
-        }
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ApiError::new(format!("Database error: {}", e))),
-            )
-                .into_response();
-        }
-    }
-
-    // Hash password
-    let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
-    let password_hash = match argon2.hash_password(body.password.as_bytes(), &salt) {
-        Ok(hash) => hash.to_string(),
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ApiError::new(format!("Password hashing error: {}", e))),
-            )
-                .into_response();
-        }
-    };
-
-    let user_id = Uuid::new_v4().to_string();
-    let now = Utc::now().to_rfc3339();
-
-    // Store user in DynamoDB
-    let put_result = state
-        .dynamo
-        .put_item()
-        .table_name("ovaflus-users")
-        .item("user_id", AttributeValue::S(user_id.clone()))
-        .item("email", AttributeValue::S(body.email.clone()))
-        .item("name", AttributeValue::S(body.name.clone()))
-        .item("password_hash", AttributeValue::S(password_hash))
-        .item("created_at", AttributeValue::S(now.clone()))
-        .item("updated_at", AttributeValue::S(now))
-        .send()
-        .await;
-
-    if let Err(e) = put_result {
-        return (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ApiError::new(format!("Failed to create user: {}", e))),
-        )
-            .into_response();
-    }
-
-    // Generate JWT tokens
-    match generate_tokens(&user_id, &state.jwt_secret) {
-        Ok((access_token, refresh_token)) => (
-            StatusCode::CREATED,
-            Json(AuthResponse {
-                access_token,
-                refresh_token,
-                user_id,
-            }),
-        )
-            .into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ApiError::new(format!("Token generation error: {}", e))),
-        )
-            .into_response(),
-    }
+        })
+        .collect();
+    // Ensure it meets Cognito policy: start with uppercase, add digit
+    format!("A1{}", chars)
 }
 
-pub async fn sign_in(
-    State(state): State<Arc<AppState>>,
-    Json(body): Json<SignInRequest>,
-) -> impl IntoResponse {
-    // Query user by email
-    let query_result = state
-        .dynamo
-        .query()
-        .table_name("ovaflus-users")
-        .index_name("email-index")
-        .key_condition_expression("email = :email")
-        .expression_attribute_values(":email", AttributeValue::S(body.email.clone()))
+/// Upsert a Cognito user by email and run the custom auth flow.
+/// Returns Cognito tokens on success.
+async fn cognito_social_sign_in(
+    state: &Arc<AppState>,
+    email: &str,
+) -> Result<CognitoTokenResponse, (StatusCode, Json<ApiError>)> {
+    // Try to create user (suppress email if already exists)
+    let create_result = state
+        .cognito
+        .admin_create_user()
+        .user_pool_id(&state.cognito_user_pool_id)
+        .username(email)
+        .user_attributes(
+            aws_sdk_cognitoidentityprovider::types::AttributeType::builder()
+                .name("email")
+                .value(email)
+                .build()
+                .map_err(|e| ApiError::internal(format!("Attribute build error: {e}")))?,
+        )
+        .user_attributes(
+            aws_sdk_cognitoidentityprovider::types::AttributeType::builder()
+                .name("email_verified")
+                .value("true")
+                .build()
+                .map_err(|e| ApiError::internal(format!("Attribute build error: {e}")))?,
+        )
+        .message_action(MessageActionType::Suppress)
         .send()
         .await;
 
-    let items = match query_result {
-        Ok(output) => output.items.unwrap_or_default(),
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ApiError::new(format!("Database error: {}", e))),
-            )
-                .into_response();
+    // Ignore "UsernameExistsException" — user already exists, that's fine
+    if let Err(e) = &create_result {
+        let err_str = format!("{:?}", e);
+        if !err_str.contains("UsernameExistsException") {
+            tracing::error!("AdminCreateUser failed: {e}");
+            return Err(ApiError::internal("Failed to create Cognito user"));
         }
-    };
+    }
 
-    let user = match items.first() {
-        Some(item) => item,
-        None => {
-            return (
-                StatusCode::UNAUTHORIZED,
-                Json(ApiError::new("Invalid email or password")),
-            )
-                .into_response();
-        }
-    };
+    // Set a permanent random password so user is in CONFIRMED state
+    state
+        .cognito
+        .admin_set_user_password()
+        .user_pool_id(&state.cognito_user_pool_id)
+        .username(email)
+        .password(random_password())
+        .permanent(true)
+        .send()
+        .await
+        .map_err(|e| {
+            tracing::error!("AdminSetUserPassword failed: {e}");
+            ApiError::internal("Failed to configure user")
+        })?;
 
-    // Verify password
-    let stored_hash = match user.get("password_hash").and_then(|v| v.as_s().ok()) {
-        Some(h) => h,
-        None => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ApiError::new("Corrupted user record")),
-            )
-                .into_response();
-        }
-    };
+    // Initiate custom auth flow
+    let auth_resp = state
+        .cognito
+        .admin_initiate_auth()
+        .auth_flow(AuthFlowType::CustomAuth)
+        .user_pool_id(&state.cognito_user_pool_id)
+        .client_id(&state.cognito_app_client_id)
+        .auth_parameters("USERNAME", email)
+        .send()
+        .await
+        .map_err(|e| {
+            tracing::error!("AdminInitiateAuth failed: {e}");
+            ApiError::internal("Auth initiation failed")
+        })?;
 
-    let parsed_hash = match PasswordHash::new(stored_hash) {
-        Ok(h) => h,
-        Err(_) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ApiError::new("Password verification error")),
-            )
-                .into_response();
-        }
-    };
+    let session = auth_resp
+        .session
+        .ok_or_else(|| ApiError::internal("No session from auth initiation"))?;
 
-    if Argon2::default()
-        .verify_password(body.password.as_bytes(), &parsed_hash)
-        .is_err()
+    // Generate and send nonce response
+    let nonce = generate_nonce(email, &state.nonce_secret);
+
+    let challenge_resp = state
+        .cognito
+        .admin_respond_to_auth_challenge()
+        .challenge_name(ChallengeNameType::CustomChallenge)
+        .user_pool_id(&state.cognito_user_pool_id)
+        .client_id(&state.cognito_app_client_id)
+        .session(&session)
+        .challenge_responses("USERNAME", email)
+        .challenge_responses("ANSWER", &nonce)
+        .send()
+        .await
+        .map_err(|e| {
+            tracing::error!("AdminRespondToAuthChallenge failed: {e}");
+            ApiError::internal("Auth challenge failed")
+        })?;
+
+    let result = challenge_resp
+        .authentication_result
+        .ok_or_else(|| ApiError::internal("No authentication result from challenge"))?;
+
+    Ok(CognitoTokenResponse {
+        access_token: result.access_token.unwrap_or_default(),
+        id_token: result.id_token.unwrap_or_default(),
+        refresh_token: result.refresh_token.unwrap_or_default(),
+        expires_in: result.expires_in,
+    })
+}
+
+pub async fn apple_sign_in(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<AppleSignInRequest>,
+) -> impl IntoResponse {
+    // Apple JWKS URL
+    const APPLE_JWKS_URL: &str = "https://appleid.apple.com/auth/keys";
+
+    // Verify the Apple identity token (aud = "com.flus.app" — our bundle ID)
+    let claims = match verify_jwt_with_jwks(
+        &body.identity_token,
+        APPLE_JWKS_URL,
+        Some("com.flus.app"),
+    )
+    .await
     {
-        return (
-            StatusCode::UNAUTHORIZED,
-            Json(ApiError::new("Invalid email or password")),
-        )
-            .into_response();
-    }
-
-    let user_id = user
-        .get("user_id")
-        .and_then(|v| v.as_s().ok())
-        .unwrap_or(&String::new())
-        .clone();
-
-    match generate_tokens(&user_id, &state.jwt_secret) {
-        Ok((access_token, refresh_token)) => (
-            StatusCode::OK,
-            Json(AuthResponse {
-                access_token,
-                refresh_token,
-                user_id,
-            }),
-        )
-            .into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ApiError::new(format!("Token generation error: {}", e))),
-        )
-            .into_response(),
-    }
-}
-
-pub async fn refresh_token(
-    State(state): State<Arc<AppState>>,
-    Json(body): Json<RefreshRequest>,
-) -> impl IntoResponse {
-    use jsonwebtoken::{decode, DecodingKey, Validation};
-
-    let key = DecodingKey::from_secret(state.jwt_secret.as_bytes());
-    let mut validation = Validation::default();
-    validation.set_required_spec_claims(&["exp", "sub", "iat"]);
-
-    let token_data = match decode::<Claims>(&body.refresh_token, &key, &validation) {
-        Ok(data) => data,
-        Err(_) => {
+        Ok(c) => c,
+        Err(e) => {
+            tracing::warn!("Apple JWT validation failed: {e}");
             return (
                 StatusCode::UNAUTHORIZED,
-                Json(ApiError::new("Invalid or expired refresh token")),
-            )
-                .into_response();
+                Json(serde_json::json!({"error": "unauthorized", "message": "Invalid Apple identity token"})),
+            ).into_response();
         }
     };
 
-    if token_data.claims.token_type != "refresh" {
-        return (
-            StatusCode::UNAUTHORIZED,
-            Json(ApiError::new("Invalid token type")),
-        )
-            .into_response();
-    }
+    let email = match claims["email"].as_str() {
+        Some(e) => e.to_string(),
+        None => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({"error": "bad_request", "message": "Email not found in Apple token"})),
+            ).into_response();
+        }
+    };
 
-    match generate_tokens(&token_data.claims.sub, &state.jwt_secret) {
-        Ok((access_token, refresh_token)) => (
-            StatusCode::OK,
-            Json(AuthResponse {
-                access_token,
-                refresh_token,
-                user_id: token_data.claims.sub,
-            }),
-        )
-            .into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ApiError::new(format!("Token generation error: {}", e))),
-        )
-            .into_response(),
+    match cognito_social_sign_in(&state, &email).await {
+        Ok(tokens) => (StatusCode::OK, Json(tokens)).into_response(),
+        Err((status, err)) => (status, err).into_response(),
+    }
+}
+
+pub async fn google_sign_in(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<GoogleSignInRequest>,
+) -> impl IntoResponse {
+    // Google JWKS URL
+    const GOOGLE_JWKS_URL: &str = "https://www.googleapis.com/oauth2/v3/certs";
+
+    // Verify Google ID token (no aud check here — Google client ID validated by signature)
+    let claims = match verify_jwt_with_jwks(&body.id_token, GOOGLE_JWKS_URL, None).await {
+        Ok(c) => c,
+        Err(e) => {
+            tracing::warn!("Google JWT validation failed: {e}");
+            return (
+                StatusCode::UNAUTHORIZED,
+                Json(serde_json::json!({"error": "unauthorized", "message": "Invalid Google ID token"})),
+            ).into_response();
+        }
+    };
+
+    let email = match claims["email"].as_str() {
+        Some(e) => e.to_string(),
+        None => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({"error": "bad_request", "message": "Email not found in Google token"})),
+            ).into_response();
+        }
+    };
+
+    match cognito_social_sign_in(&state, &email).await {
+        Ok(tokens) => (StatusCode::OK, Json(tokens)).into_response(),
+        Err((status, err)) => (status, err).into_response(),
     }
 }

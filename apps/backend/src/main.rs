@@ -8,6 +8,7 @@ mod tests;
 
 use std::sync::Arc;
 
+use aws_sdk_cognitoidentityprovider::Client as CognitoClient;
 use aws_sdk_dynamodb::Client as DynamoClient;
 use aws_sdk_ssm::Client as SsmClient;
 use axum::{
@@ -20,7 +21,11 @@ use tracing_subscriber::EnvFilter;
 #[derive(Clone)]
 pub struct AppState {
     pub dynamo: DynamoClient,
-    pub jwt_secret: String,
+    pub cognito: CognitoClient,
+    pub cognito_user_pool_id: String,
+    pub cognito_app_client_id: String,
+    pub cognito_issuer: String, // https://cognito-idp.{region}.amazonaws.com/{pool_id}
+    pub nonce_secret: String,
     pub plaid_client_id: String,
     pub plaid_secret: String,
     pub plaid_env: String,
@@ -49,13 +54,29 @@ async fn main() -> Result<(), lambda_http::Error> {
 
     let config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
     let dynamo = DynamoClient::new(&config);
+    let cognito = CognitoClient::new(&config);
     let ssm = SsmClient::new(&config);
 
     let prefix = std::env::var("SSM_PREFIX").unwrap_or_else(|_| "/ovaflus".to_string());
 
+    let cognito_user_pool_id =
+        std::env::var("COGNITO_USER_POOL_ID").unwrap_or_else(|_| "UNSET".to_string());
+    let cognito_app_client_id =
+        std::env::var("COGNITO_APP_CLIENT_ID").unwrap_or_else(|_| "UNSET".to_string());
+    let cognito_region =
+        std::env::var("COGNITO_REGION").unwrap_or_else(|_| "us-east-1".to_string());
+    let cognito_issuer = format!(
+        "https://cognito-idp.{}.amazonaws.com/{}",
+        cognito_region, cognito_user_pool_id
+    );
+
     let state = AppState {
         dynamo,
-        jwt_secret: load_ssm_param(&ssm, &format!("{prefix}/jwt_secret")).await,
+        cognito,
+        cognito_user_pool_id,
+        cognito_app_client_id,
+        cognito_issuer,
+        nonce_secret: load_ssm_param(&ssm, &format!("{prefix}/nonce_secret")).await,
         plaid_client_id: load_ssm_param(&ssm, &format!("{prefix}/plaid_client_id")).await,
         plaid_secret: load_ssm_param(&ssm, &format!("{prefix}/plaid_secret")).await,
         plaid_env: load_ssm_param(&ssm, &format!("{prefix}/plaid_env")).await,
@@ -66,9 +87,8 @@ async fn main() -> Result<(), lambda_http::Error> {
 
     let app = Router::new()
         // Auth (public)
-        .route("/auth/signup", post(handlers::auth::sign_up))
-        .route("/auth/signin", post(handlers::auth::sign_in))
-        .route("/auth/refresh", post(handlers::auth::refresh_token))
+        .route("/auth/apple", post(handlers::auth::apple_sign_in))
+        .route("/auth/google", post(handlers::auth::google_sign_in))
         // Profile
         .route("/profile", get(handlers::profile::get_profile))
         .route("/profile", put(handlers::profile::update_profile))

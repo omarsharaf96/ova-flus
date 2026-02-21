@@ -13,10 +13,9 @@ struct AnyEncodable: Encodable {
 }
 
 enum APIEndpoint {
-    // Auth
-    case signIn(email: String, password: String)
-    case signUp(email: String, password: String, name: String)
-    case refreshToken(refreshToken: String)
+    // Auth (social sign-in — email/password handled by Amplify directly)
+    case appleSignIn(identityToken: String)
+    case googleSignIn(idToken: String)
 
     // Budgets
     case getBudgets
@@ -58,9 +57,8 @@ enum APIEndpoint {
 
     var path: String {
         switch self {
-        case .signIn: return "/auth/signin"
-        case .signUp: return "/auth/signup"
-        case .refreshToken: return "/auth/refresh"
+        case .appleSignIn: return "/auth/apple"
+        case .googleSignIn: return "/auth/google"
         case .getBudgets, .createBudget: return "/budgets"
         case .updateBudget(let budget): return "/budgets/\(budget.id)"
         case .deleteBudget(let id): return "/budgets/\(id)"
@@ -87,7 +85,7 @@ enum APIEndpoint {
 
     var method: String {
         switch self {
-        case .signIn, .signUp, .refreshToken, .createBudget, .createTransaction, .addToWatchlist, .addHolding:
+        case .appleSignIn, .googleSignIn, .createBudget, .createTransaction, .addToWatchlist, .addHolding:
             return "POST"
         case .updateBudget, .updateProfile:
             return "PUT"
@@ -102,12 +100,10 @@ enum APIEndpoint {
 
     var body: AnyEncodable? {
         switch self {
-        case .signIn(let email, let password):
-            return AnyEncodable(["email": email, "password": password])
-        case .signUp(let email, let password, let name):
-            return AnyEncodable(["email": email, "password": password, "name": name])
-        case .refreshToken(let refreshToken):
-            return AnyEncodable(["refresh_token": refreshToken])
+        case .appleSignIn(let identityToken):
+            return AnyEncodable(["identity_token": identityToken])
+        case .googleSignIn(let idToken):
+            return AnyEncodable(["id_token": idToken])
         case .createBudget(let budget), .updateBudget(let budget):
             return AnyEncodable(budget)
         case .createTransaction(let transaction):

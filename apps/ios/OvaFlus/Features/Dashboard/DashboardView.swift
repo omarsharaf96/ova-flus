@@ -7,18 +7,18 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
-                    // Portfolio Value Card
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Portfolio Value")
+                VStack(spacing: 16) {
+                    // Net Worth hero card
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Net Worth")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                        Text(viewModel.portfolioValue, format: .currency(code: "USD"))
-                            .font(.system(size: 34, weight: .bold))
-                        HStack {
+                        Text(viewModel.netWorth, format: .currency(code: "USD"))
+                            .font(.system(size: 36, weight: .bold))
+                        HStack(spacing: 4) {
                             Image(systemName: viewModel.portfolioDayChange >= 0 ? "arrow.up.right" : "arrow.down.right")
                             Text(viewModel.portfolioDayChange, format: .currency(code: "USD"))
-                            Text("today")
+                            Text("portfolio today")
                                 .foregroundStyle(.secondary)
                         }
                         .font(.subheadline)
@@ -26,8 +26,30 @@ struct DashboardView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
-                    .background(.ultraThinMaterial)
+                    .background(.blue.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                    // Stat tiles: Cash | Month Income | Month Spend
+                    HStack(spacing: 12) {
+                        StatTileView(
+                            title: "Cash",
+                            value: viewModel.cash,
+                            icon: "banknote",
+                            color: viewModel.cash >= 0 ? .green : .red
+                        )
+                        StatTileView(
+                            title: "Month Income",
+                            value: viewModel.monthIncome,
+                            icon: "arrow.down.circle.fill",
+                            color: .green
+                        )
+                        StatTileView(
+                            title: "Month Spend",
+                            value: viewModel.monthSpend,
+                            icon: "arrow.up.circle.fill",
+                            color: .red
+                        )
+                    }
 
                     // Budget Summary Card
                     VStack(alignment: .leading, spacing: 12) {
@@ -122,4 +144,31 @@ struct DashboardView: View {
 
 #Preview {
     DashboardView()
+}
+
+private struct StatTileView: View {
+    let title: String
+    let value: Double
+    let icon: String
+    let color: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.caption)
+                Text(title)
+                    .font(.caption)
+            }
+            .foregroundStyle(color)
+            Text(value, format: .currency(code: "USD"))
+                .font(.subheadline.bold())
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
 }
