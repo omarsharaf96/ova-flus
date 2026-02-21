@@ -40,7 +40,7 @@ jobs:
           xcodebuild build \
             -project apps/ios/OvaFlus.xcodeproj \
             -scheme OvaFlus \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.5' \
             -allowProvisioningUpdates \
             CODE_SIGNING_ALLOWED=NO
 
