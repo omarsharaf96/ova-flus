@@ -1,5 +1,25 @@
 import Foundation
 
+struct AuthTokens: Codable {
+    let accessToken: String
+    let refreshToken: String
+    let expiresAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case accessToken = "access_token"
+        case refreshToken = "refresh_token"
+        case expiresAt = "expires_at"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        accessToken = try container.decode(String.self, forKey: .accessToken)
+        refreshToken = try container.decode(String.self, forKey: .refreshToken)
+        // Backend doesn't return expires_at; default to 1 hour. Local storage will have it.
+        expiresAt = (try? container.decode(Date.self, forKey: .expiresAt)) ?? Date().addingTimeInterval(3600)
+    }
+}
+
 class APIClient {
     static let shared = APIClient()
     private let baseURL: String

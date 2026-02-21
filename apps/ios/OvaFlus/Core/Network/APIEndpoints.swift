@@ -107,7 +107,7 @@ enum APIEndpoint {
         case .signUp(let email, let password, let name):
             return AnyEncodable(["email": email, "password": password, "name": name])
         case .refreshToken(let refreshToken):
-            return AnyEncodable(["refreshToken": refreshToken])
+            return AnyEncodable(["refresh_token": refreshToken])
         case .createBudget(let budget), .updateBudget(let budget):
             return AnyEncodable(budget)
         case .createTransaction(let transaction):

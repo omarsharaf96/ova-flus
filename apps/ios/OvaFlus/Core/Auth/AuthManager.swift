@@ -1,12 +1,6 @@
 import Foundation
 import SwiftUI
 
-struct AuthTokens: Codable {
-    let accessToken: String
-    let refreshToken: String
-    let expiresAt: Date
-}
-
 @MainActor
 class AuthManager: ObservableObject {
     static let shared = AuthManager()

@@ -170,3 +170,59 @@ jobs:
             --s3-bucket ${{ env.ARTIFACT_BUCKET }} \
             --s3-key ovaflus-backend.zip \
             --publish
+
+  validate-api:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Wait for Lambda to be active
+        run: |
+          aws lambda wait function-updated \
+            --function-name ovaflus-backend
+
+      - name: Smoke test API endpoints
+        env:
+          BASE: ${{ vars.API_BASE_URL }}
+        run: |
+          set -euo pipefail
+
+          check() {
+            local label="$1" expected="$2" actual
+            actual=$(curl -s -o /dev/null -w "%{http_code}" "${@:3}")
+            echo "$label → HTTP $actual"
+            if [ "$actual" != "$expected" ]; then
+              echo "FAIL: expected $expected, got $actual"
+              exit 1
+            fi
+          }
+
+          # Auth: wrong credentials must return 401 (Lambda is live + auth route works)
+          check "POST /auth/signin (bad creds)" "401" \
+            -X POST "$BASE/auth/signin" \
+            -H "Content-Type: application/json" \
+            -d '{"email":"smoke@ovaflus.invalid","password":"wrong"}'
+
+          # Sign-up with missing fields must return 422 (body validation works)
+          check "POST /auth/signup (missing fields)" "422" \
+            -X POST "$BASE/auth/signup" \
+            -H "Content-Type: application/json" \
+            -d '{}'
+
+          # Protected routes without a token must return 401
+          check "GET /profile (no token)" "401" \
+            "$BASE/profile"
+
+          check "GET /budgets (no token)" "401" \
+            "$BASE/budgets"
+
+          check "GET /watchlist (no token)" "401" \
+            "$BASE/watchlist"
+
+          echo "All smoke tests passed."
