@@ -51,15 +51,15 @@ async fn main() -> Result<(), lambda_http::Error> {
     let dynamo = DynamoClient::new(&config);
     let ssm = SsmClient::new(&config);
 
-    let prefix = std::env::var("SSM_PREFIX").unwrap_or_else(|_| "/ovaflus/prod".to_string());
+    let prefix = std::env::var("SSM_PREFIX").unwrap_or_else(|_| "/ovaflus".to_string());
 
     let state = AppState {
         dynamo,
-        jwt_secret: load_ssm_param(&ssm, &format!("{prefix}/jwt-secret")).await,
-        plaid_client_id: load_ssm_param(&ssm, &format!("{prefix}/plaid-client-id")).await,
-        plaid_secret: load_ssm_param(&ssm, &format!("{prefix}/plaid-secret")).await,
-        plaid_env: load_ssm_param(&ssm, &format!("{prefix}/plaid-env")).await,
-        finnhub_api_key: load_ssm_param(&ssm, &format!("{prefix}/finnhub-api-key")).await,
+        jwt_secret: load_ssm_param(&ssm, &format!("{prefix}/jwt_secret")).await,
+        plaid_client_id: load_ssm_param(&ssm, &format!("{prefix}/plaid_client_id")).await,
+        plaid_secret: load_ssm_param(&ssm, &format!("{prefix}/plaid_secret")).await,
+        plaid_env: load_ssm_param(&ssm, &format!("{prefix}/plaid_env")).await,
+        finnhub_api_key: load_ssm_param(&ssm, &format!("{prefix}/finnhub_api_key")).await,
     };
 
     let state = Arc::new(state);
