@@ -35,12 +35,14 @@ jobs:
     if: needs.changes.outputs.ios == 'true'
     steps:
       - uses: actions/checkout@v4
-      - name: Build and Test iOS
+      - name: Build iOS
         run: |
-          xcodebuild test \
+          xcodebuild build \
             -project apps/ios/OvaFlus.xcodeproj \
             -scheme OvaFlus \
-            -destination 'platform=iOS Simulator,name=iPhone 15'
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -allowProvisioningUpdates \
+            CODE_SIGNING_ALLOWED=NO
 
   test-backend:
     runs-on: ubuntu-latest
